@@ -425,6 +425,127 @@
 
   .app-hidden{ display:none !important; }
 
+  /* Dashboard */
+  #dashboardOverlay{
+    position: fixed;
+    inset: 0;
+    background: #e8e6df;
+    overflow-y: auto;
+    z-index: 998;
+    padding: 40px 20px 60px;
+  }
+  #dashboardOverlay.hidden{ display:none; }
+  .dash-wrap{
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .dash-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom: 26px;
+  }
+  .dash-top h1{
+    font-family:'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--navy);
+    margin:0;
+  }
+  .dash-top .who{
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .dash-card{
+    background:#fff;
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(11,19,57,0.08);
+    padding: 28px 30px;
+    margin-bottom: 24px;
+  }
+  .dash-card h2{
+    font-family:'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--navy);
+    margin: 0 0 4px;
+  }
+  .dash-card p.sub{
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 20px;
+  }
+  .quote-table{
+    width:100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .quote-table th{
+    text-align:left;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .quote-table td{
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  .quote-table tr:last-child td{ border-bottom:none; }
+  .quote-table .qno{ font-weight:700; color: var(--navy); }
+  .type-tag{
+    display:inline-block;
+    font-size: 9.5px;
+    font-weight:700;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    color:#fff;
+  }
+  .type-tag.individual{ background: var(--gold); }
+  .type-tag.corporate{ background: var(--navy); }
+  .row-actions button{
+    border:none;
+    background:none;
+    font-size: 11.5px;
+    cursor:pointer;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .row-actions .edit-btn{ color: var(--navy); }
+  .row-actions .edit-btn:hover{ background: var(--cream); }
+  .row-actions .delete-btn{ color: #b04a4a; }
+  .row-actions .delete-btn:hover{ background: #fbeaea; }
+  .dash-empty{
+    font-size: 12.5px;
+    color: var(--muted);
+    padding: 10px 0;
+  }
+  .dash-signout{
+    border: 1px solid var(--line);
+    background:#fff;
+    color: var(--navy);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor:pointer;
+  }
+  .back-to-dash{
+    background:none;
+    border:none;
+    color: var(--muted);
+    font-size: 11px;
+    text-decoration: underline;
+    cursor:pointer;
+    padding:0;
+  }
+  .back-to-dash:hover{ color: var(--navy); }
+  .quote-no-locked{
+    font-style: italic;
+    color: var(--muted) !important;
+  }
+
   /* Quotation type selection */
   #typeOverlay{
     position: fixed;
@@ -558,20 +679,39 @@
     </div>
   </div>
 
-  <div id="typeOverlay" class="hidden">
-    <div class="type-box">
-      <h2>What kind of quotation?</h2>
-      <p class="sub">This determines the quotation ID prefix</p>
-      <div class="type-choices">
-        <div class="type-choice" onclick="chooseType('individual')">
-          <span class="badge">R &ndash; XXXX</span>
-          <h3>Individual</h3>
-          <p>Personal / retail motor policy</p>
+  <div id="dashboardOverlay" class="hidden">
+    <div class="dash-wrap">
+      <div class="dash-top">
+        <h1>GIG Quotation Tool</h1>
+        <div class="who">
+          <span id="dashSignedInAs"></span>
+          &nbsp;&middot;&nbsp;
+          <button type="button" class="dash-signout" onclick="doLogout()">Sign out</button>
         </div>
-        <div class="type-choice" onclick="chooseType('corporate')">
-          <span class="badge">C &ndash; XXXX</span>
-          <h3>Corporate</h3>
-          <p>Fleet, rental, or company-owned vehicles</p>
+      </div>
+
+      <div class="dash-card">
+        <h2>New Quotation</h2>
+        <p class="sub">Choose a type to start &mdash; a quotation number is only assigned once you save it as a PDF</p>
+        <div class="type-choices">
+          <div class="type-choice" onclick="startNewQuotation('individual')">
+            <span class="badge">R &ndash; XXXX</span>
+            <h3>Individual</h3>
+            <p>Personal / retail motor policy</p>
+          </div>
+          <div class="type-choice" onclick="startNewQuotation('corporate')">
+            <span class="badge">C &ndash; XXXX</span>
+            <h3>Corporate</h3>
+            <p>Fleet, rental, or company-owned vehicles</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <h2>Completed Quotations</h2>
+        <p class="sub">Quotations that have been saved as a PDF, across the whole team</p>
+        <div id="quoteListWrap">
+          <div class="dash-empty">Loading…</div>
         </div>
       </div>
     </div>
@@ -582,7 +722,7 @@
     <span id="signedInAs"></span>
     <span>
       <span id="typeBadge" class="type-pill"></span>
-      <button type="button" class="switch-type-link" onclick="showTypeOverlay()">Switch type</button>
+      <button type="button" class="back-to-dash" onclick="backToDashboard()">&larr; Back to Dashboard</button>
       &nbsp;&middot;&nbsp;
       <button type="button" onclick="doLogout()">Sign out</button>
     </span>
@@ -601,21 +741,20 @@
       <div>
         <label>Quotation No.</label>
         <div class="quote-row">
-          <input type="text" id="quoteNo" placeholder="Q-2026-0001" />
-          <button type="button" class="mini-btn no-print" onclick="newQuotationNumber()" title="Generate next quotation number">&#8635;</button>
+          <input type="text" id="quoteNo" class="quote-no-locked" placeholder="Assigned when saved as PDF" readonly />
         </div>
       </div>
       <div>
         <label>Date Issued</label>
-        <input type="date" />
+        <input type="date" id="dateIssued" />
       </div>
       <div>
         <label>Valid Until</label>
-        <input type="date" />
+        <input type="date" id="validUntil" />
       </div>
       <div>
         <label>Underwriter</label>
-        <input type="text" placeholder="Your name" />
+        <input type="text" id="underwriter" placeholder="Your name" />
       </div>
     </div>
 
@@ -623,22 +762,22 @@
 
       <div class="section-title">Client Details</div>
       <div class="grid">
-        <div class="field"><label>Client Name</label><input type="text" placeholder="Full name" /></div>
-        <div class="field"><label>Civil ID</label><input type="text" placeholder="XXXXXXXXXXXX" /></div>
-        <div class="field"><label>Mobile</label><input type="text" placeholder="+965 ..." /></div>
-        <div class="field"><label>Email</label><input type="text" placeholder="client@email.com" /></div>
-        <div class="field"><label>Policy Type</label><input type="text" placeholder="New / Renewal" /></div>
-        <div class="field"><label>Existing Policy No. (if renewal)</label><input type="text" /></div>
+        <div class="field"><label>Client Name</label><input type="text" id="clientName" placeholder="Full name" /></div>
+        <div class="field"><label>Civil ID</label><input type="text" id="civilId" placeholder="XXXXXXXXXXXX" /></div>
+        <div class="field"><label>Mobile</label><input type="text" id="mobile" placeholder="+965 ..." /></div>
+        <div class="field"><label>Email</label><input type="text" id="clientEmail" placeholder="client@email.com" /></div>
+        <div class="field"><label>Policy Type</label><input type="text" id="policyType" placeholder="New / Renewal" /></div>
+        <div class="field"><label>Existing Policy No. (if renewal)</label><input type="text" id="existingPolicyNo" /></div>
       </div>
 
       <div class="section-title">Vehicle Details</div>
       <div class="grid">
-        <div class="field"><label>Make</label><input type="text" placeholder="e.g. Toyota" /></div>
-        <div class="field"><label>Model</label><input type="text" placeholder="e.g. Land Cruiser" /></div>
-        <div class="field"><label>Year of Manufacture</label><input type="text" placeholder="2024" /></div>
-        <div class="field"><label>Plate Number</label><input type="text" /></div>
-        <div class="field"><label>Chassis No.</label><input type="text" /></div>
-        <div class="field"><label>Usage</label><input type="text" placeholder="Private / Commercial" /></div>
+        <div class="field"><label>Make</label><input type="text" id="vehicleMake" placeholder="e.g. Toyota" /></div>
+        <div class="field"><label>Model</label><input type="text" id="vehicleModel" placeholder="e.g. Land Cruiser" /></div>
+        <div class="field"><label>Year of Manufacture</label><input type="text" id="vehicleYear" placeholder="2024" /></div>
+        <div class="field"><label>Plate Number</label><input type="text" id="plateNumber" /></div>
+        <div class="field"><label>Chassis No.</label><input type="text" id="chassisNo" /></div>
+        <div class="field"><label>Usage</label><input type="text" id="usage" placeholder="Private / Commercial" /></div>
       </div>
 
       <div class="section-title">Coverage &amp; Premium</div>
@@ -716,8 +855,8 @@
       </div>
 
       <div class="sign-row">
-        <div class="field"><label>Prepared By</label><input type="text" /></div>
-        <div class="field"><label>Contact Number</label><input type="text" placeholder="+965 ..." /></div>
+        <div class="field"><label>Prepared By</label><input type="text" id="preparedBy" /></div>
+        <div class="field"><label>Contact Number</label><input type="text" id="contactNumber" placeholder="+965 ..." /></div>
       </div>
 
       <div class="footer">
@@ -728,17 +867,18 @@
   </div>
 
   <div class="actions">
-    <button class="btn-print" onclick="window.print()">Print / Save as PDF</button>
+    <button class="btn-print" onclick="handlePrint()">Print / Save as PDF</button>
   </div>
   </div><!-- /#appRoot -->
 
 <script>
-// ---------- Quotation number: shared across the whole team ----------
-// Numbers are generated by a Supabase function so two people can never
-// get the same one, even generating at the exact same moment.
 const SUPABASE_URL = 'https://jjalmqvhcjdmdivrupfu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqYWxtcXZoY2pkbWRpdnJ1cGZ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU5MzUyMTUsImV4cCI6MjEwMTUxMTIxNX0.APrjFFYIrfjcvWkrMCM0Axc8Vf8BPXX-gfi-yYm5n1g';
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUserEmail = null;
+let selectedQuoteType = null;   // 'individual' or 'corporate'
+let currentQuotationId = null;  // uuid of the draft/quotation row being edited
 
 // ---------- Auth ----------
 async function doLogin(){
@@ -769,38 +909,20 @@ async function doLogin(){
 async function doLogout(){
   await supabaseClient.auth.signOut();
   document.getElementById('appRoot').classList.add('app-hidden');
-  document.getElementById('typeOverlay').classList.add('hidden');
+  document.getElementById('dashboardOverlay').classList.add('hidden');
   document.getElementById('loginOverlay').classList.remove('hidden');
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPassword').value = '';
   selectedQuoteType = null;
+  currentQuotationId = null;
 }
 
 function onSignedIn(session){
   document.getElementById('loginOverlay').classList.add('hidden');
   currentUserEmail = session.user.email;
   document.getElementById('signedInAs').textContent = 'Signed in as ' + currentUserEmail;
-  showTypeOverlay();
-}
-
-function showTypeOverlay(){
-  document.getElementById('appRoot').classList.add('app-hidden');
-  document.getElementById('typeOverlay').classList.remove('hidden');
-}
-
-function chooseType(type){
-  selectedQuoteType = type; // 'individual' or 'corporate'
-  document.getElementById('typeOverlay').classList.add('hidden');
-  document.getElementById('appRoot').classList.remove('app-hidden');
-
-  const badge = document.getElementById('typeBadge');
-  badge.textContent = type === 'individual' ? 'INDIVIDUAL (R)' : 'CORPORATE (C)';
-
-  const underwriterField = document.querySelector('.meta input[placeholder="Your name"]');
-  if (underwriterField && !underwriterField.value) underwriterField.value = currentUserEmail;
-
-  newQuotationNumber();
-  calc();
+  document.getElementById('dashSignedInAs').textContent = 'Signed in as ' + currentUserEmail;
+  showDashboard();
 }
 
 // Allow pressing Enter in the password field to submit
@@ -809,11 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pw) pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
 });
 
-let currentUserEmail = null;
-let selectedQuoteType = null; // 'individual' or 'corporate'
-
-// Check for an existing session on page load (so you're not asked to
-// sign in again every time you open the tab)
+// Check for an existing session on page load
 (async () => {
   const { data } = await supabaseClient.auth.getSession();
   if (data.session){
@@ -821,23 +939,318 @@ let selectedQuoteType = null; // 'individual' or 'corporate'
   }
 })();
 
-async function newQuotationNumber(){
-  if (!selectedQuoteType) return;
-  const field = document.getElementById('quoteNo');
-  const originalValue = field.value;
-  field.value = 'Generating…';
-  field.disabled = true;
-  try{
-    const { data, error } = await supabaseClient.rpc('next_quotation_number', { p_type: selectedQuoteType });
-    if (error) throw error;
-    field.value = data;
-  } catch(err){
-    console.error('Could not reach the shared numbering service:', err);
-    field.value = originalValue;
-    alert('Could not generate a quotation number — check your internet connection and try again.');
-  } finally {
-    field.disabled = false;
+// ---------- Dashboard ----------
+function showDashboard(){
+  document.getElementById('appRoot').classList.add('app-hidden');
+  document.getElementById('dashboardOverlay').classList.remove('hidden');
+  loadQuoteList();
+}
+
+async function backToDashboard(){
+  // Silently keep whatever's been typed as a draft, so nothing is lost,
+  // but do NOT assign a quotation number — that only happens on print.
+  if (currentQuotationId){
+    try{
+      await supabaseClient.from('quotations')
+        .update({ data: collectFormData(), quote_type: selectedQuoteType })
+        .eq('id', currentQuotationId);
+    } catch(err){
+      console.error('Could not save draft:', err);
+    }
   }
+  showDashboard();
+}
+
+async function loadQuoteList(){
+  const wrap = document.getElementById('quoteListWrap');
+  wrap.innerHTML = '<div class="dash-empty">Loading…</div>';
+
+  const { data, error } = await supabaseClient
+    .from('quotations')
+    .select('*')
+    .eq('status', 'completed')
+    .order('created_at', { ascending: false });
+
+  if (error){
+    wrap.innerHTML = '<div class="dash-empty">Could not load quotations. Check your connection and refresh.</div>';
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0){
+    wrap.innerHTML = '<div class="dash-empty">No completed quotations yet.</div>';
+    return;
+  }
+
+  let rows = '';
+  data.forEach(q => {
+    const d = q.data || {};
+    const clientOrCompany = d.clientName || '—';
+    const dateStr = q.created_at ? new Date(q.created_at).toLocaleDateString() : '—';
+    const typeLabel = q.quote_type === 'individual' ? 'INDIVIDUAL' : 'CORPORATE';
+    rows += `
+      <tr>
+        <td class="qno">${q.quote_no || '—'}</td>
+        <td><span class="type-tag ${q.quote_type}">${typeLabel}</span></td>
+        <td>${escapeHtml(clientOrCompany)}</td>
+        <td>${dateStr}</td>
+        <td class="row-actions">
+          <button class="edit-btn" onclick="editQuotation('${q.id}')">Edit</button>
+          <button class="delete-btn" onclick="deleteQuotation('${q.id}')">Delete</button>
+        </td>
+      </tr>`;
+  });
+
+  wrap.innerHTML = `
+    <table class="quote-table">
+      <thead>
+        <tr><th>Quotation No.</th><th>Type</th><th>Client</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---------- Starting / opening a quotation ----------
+async function startNewQuotation(type){
+  selectedQuoteType = type;
+  currentQuotationId = null;
+
+  resetForm();
+
+  const { data, error } = await supabaseClient
+    .from('quotations')
+    .insert({ quote_type: type, status: 'draft', data: {} })
+    .select()
+    .single();
+
+  if (error){
+    alert('Could not start a new quotation — check your connection and try again.');
+    console.error(error);
+    return;
+  }
+
+  currentQuotationId = data.id;
+  openQuotationForm(type);
+}
+
+async function editQuotation(id){
+  const { data, error } = await supabaseClient
+    .from('quotations')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error || !data){
+    alert('Could not load that quotation.');
+    console.error(error);
+    return;
+  }
+
+  currentQuotationId = data.id;
+  selectedQuoteType = data.quote_type;
+  resetForm();
+  populateFormData(data.data || {});
+  document.getElementById('quoteNo').value = data.quote_no || '';
+  openQuotationForm(data.quote_type);
+}
+
+async function deleteQuotation(id){
+  if (!confirm('Delete this quotation? This cannot be undone.')) return;
+  const { error } = await supabaseClient.from('quotations').delete().eq('id', id);
+  if (error){
+    alert('Could not delete — check your connection and try again.');
+    console.error(error);
+    return;
+  }
+  loadQuoteList();
+}
+
+function openQuotationForm(type){
+  document.getElementById('dashboardOverlay').classList.add('hidden');
+  document.getElementById('appRoot').classList.remove('app-hidden');
+  document.getElementById('typeBadge').textContent = type === 'individual' ? 'INDIVIDUAL (R)' : 'CORPORATE (C)';
+
+  const underwriterField = document.getElementById('underwriter');
+  if (underwriterField && !underwriterField.value) underwriterField.value = currentUserEmail;
+
+  calc();
+}
+
+// ---------- Collect / populate form data ----------
+function collectFormData(){
+  const addons = [];
+  document.querySelectorAll('#addonRows tr').forEach(tr => {
+    const nameEl = tr.querySelector('td:first-child input');
+    const amtEl = tr.querySelector('.amt');
+    if (nameEl && (nameEl.value || (amtEl && amtEl.value))){
+      addons.push({ name: nameEl.value, amount: amtEl ? amtEl.value : '' });
+    }
+  });
+
+  return {
+    dateIssued: val('dateIssued'),
+    validUntil: val('validUntil'),
+    underwriter: val('underwriter'),
+    clientName: val('clientName'),
+    civilId: val('civilId'),
+    mobile: val('mobile'),
+    clientEmail: val('clientEmail'),
+    policyType: val('policyType'),
+    existingPolicyNo: val('existingPolicyNo'),
+    vehicleMake: val('vehicleMake'),
+    vehicleModel: val('vehicleModel'),
+    vehicleYear: val('vehicleYear'),
+    plateNumber: val('plateNumber'),
+    chassisNo: val('chassisNo'),
+    usage: val('usage'),
+    sumInsured: val('sumInsured'),
+    rate: val('rate'),
+    basePremium: val('basePremium'),
+    addons: addons,
+    totalPremium: val('totalPremium'),
+    totalManuallyEdited: totalManuallyEdited,
+    terms: document.getElementById('terms').innerText,
+    preparedBy: val('preparedBy'),
+    contactNumber: val('contactNumber')
+  };
+}
+
+function val(id){
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+function setVal(id, v){
+  const el = document.getElementById(id);
+  if (el) el.value = (v === undefined || v === null) ? '' : v;
+}
+
+function populateFormData(d){
+  setVal('dateIssued', d.dateIssued);
+  setVal('validUntil', d.validUntil);
+  setVal('underwriter', d.underwriter);
+  setVal('clientName', d.clientName);
+  setVal('civilId', d.civilId);
+  setVal('mobile', d.mobile);
+  setVal('clientEmail', d.clientEmail);
+  setVal('policyType', d.policyType);
+  setVal('existingPolicyNo', d.existingPolicyNo);
+  setVal('vehicleMake', d.vehicleMake);
+  setVal('vehicleModel', d.vehicleModel);
+  setVal('vehicleYear', d.vehicleYear);
+  setVal('plateNumber', d.plateNumber);
+  setVal('chassisNo', d.chassisNo);
+  setVal('usage', d.usage);
+  setVal('sumInsured', d.sumInsured);
+  setVal('rate', d.rate);
+  setVal('preparedBy', d.preparedBy);
+  setVal('contactNumber', d.contactNumber);
+
+  const tbody = document.getElementById('addonRows');
+  tbody.innerHTML = '';
+  const addons = (d.addons && d.addons.length) ? d.addons : [{name:'',amount:''},{name:'',amount:''}];
+  addons.forEach(a => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" placeholder="Add-on name" value="${escapeAttr(a.name || '')}" /></td>
+      <td class="amt-col"><input type="number" class="amt" step="0.001" placeholder="0.000" value="${escapeAttr(a.amount || '')}" oninput="calc()" /></td>
+      <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+  if (d.terms){
+    document.getElementById('terms').innerText = d.terms;
+  }
+
+  totalManuallyEdited = !!d.totalManuallyEdited;
+  if (d.totalPremium !== undefined && totalManuallyEdited){
+    setVal('totalPremium', d.totalPremium);
+  }
+}
+
+function escapeAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
+
+function resetForm(){
+  document.getElementById('quoteNo').value = '';
+  ['dateIssued','validUntil','underwriter','clientName','civilId','mobile','clientEmail',
+   'policyType','existingPolicyNo','vehicleMake','vehicleModel','vehicleYear','plateNumber',
+   'chassisNo','usage','sumInsured','rate','preparedBy','contactNumber'].forEach(id => setVal(id, ''));
+
+  const tbody = document.getElementById('addonRows');
+  tbody.innerHTML = `
+    <tr>
+      <td><input type="text" placeholder="e.g. Off-road cover" /></td>
+      <td class="amt-col"><input type="number" class="amt" step="0.001" placeholder="0.000" oninput="calc()" /></td>
+      <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
+    </tr>
+    <tr>
+      <td><input type="text" placeholder="e.g. Personal accident cover" /></td>
+      <td class="amt-col"><input type="number" class="amt" step="0.001" placeholder="0.000" oninput="calc()" /></td>
+      <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
+    </tr>`;
+
+  document.getElementById('terms').innerText =
+`1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
+2. Premium is subject to inspection of the vehicle prior to policy issuance.
+3. Coverage is not bound until premium payment is confirmed and policy is issued.
+4. Rates shown are exclusive of any applicable government fees.
+5. GIG reserves the right to amend terms based on risk assessment findings.`;
+
+  totalManuallyEdited = false;
+  calc();
+}
+
+// ---------- Print / finalize ----------
+async function handlePrint(){
+  if (!currentQuotationId){
+    alert('Start a quotation from the Dashboard first.');
+    return;
+  }
+
+  const btn = document.querySelector('.btn-print');
+  const originalLabel = btn.textContent;
+  btn.disabled = true;
+
+  const formData = collectFormData();
+  const alreadyFinalized = !!document.getElementById('quoteNo').value;
+
+  try{
+    if (!alreadyFinalized){
+      btn.textContent = 'Assigning quotation number…';
+      const { data, error } = await supabaseClient.rpc('finalize_quotation', {
+        p_id: currentQuotationId,
+        p_type: selectedQuoteType,
+        p_data: formData
+      });
+      if (error) throw error;
+      const quoteNo = Array.isArray(data) ? data[0].quote_no : data.quote_no;
+      document.getElementById('quoteNo').value = quoteNo;
+    } else {
+      btn.textContent = 'Saving changes…';
+      const { error } = await supabaseClient
+        .from('quotations')
+        .update({ data: formData, updated_at: new Date().toISOString() })
+        .eq('id', currentQuotationId);
+      if (error) throw error;
+    }
+  } catch(err){
+    console.error('Could not save/finalize quotation:', err);
+    alert('Could not save this quotation — check your internet connection and try again.');
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+    return;
+  }
+
+  btn.disabled = false;
+  btn.textContent = originalLabel;
+  window.print();
 }
 
 // ---------- Premium calculation ----------
