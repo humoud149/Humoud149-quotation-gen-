@@ -425,6 +425,100 @@
 
   .app-hidden{ display:none !important; }
 
+  /* Quotation type selection */
+  #typeOverlay{
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 999;
+    padding: 20px;
+  }
+  #typeOverlay.hidden{ display:none; }
+  .type-box{
+    background:#fff;
+    border-radius: 8px;
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    text-align:center;
+  }
+  .type-box h2{
+    font-family:'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--navy);
+    margin: 0 0 6px;
+  }
+  .type-box p.sub{
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0 0 26px;
+  }
+  .type-choices{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .type-choice{
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    padding: 24px 16px;
+    cursor:pointer;
+    background: var(--cream);
+    transition: all 0.15s ease;
+  }
+  .type-choice:hover{
+    border-color: var(--gold);
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+  .type-choice .badge{
+    display:inline-block;
+    font-size: 11px;
+    font-weight:700;
+    letter-spacing: 1px;
+    color: #fff;
+    background: var(--navy);
+    padding: 3px 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .type-choice h3{
+    font-size: 14.5px;
+    margin: 0 0 4px;
+    color: var(--navy);
+  }
+  .type-choice p{
+    font-size: 11px;
+    color: var(--muted);
+    margin:0;
+  }
+  .type-pill{
+    display:inline-block;
+    font-size: 10px;
+    font-weight:700;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 3px;
+    color: #fff;
+    background: var(--gold);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .switch-type-link{
+    background:none;
+    border:none;
+    color: var(--muted);
+    font-size: 11px;
+    text-decoration: underline;
+    cursor:pointer;
+    padding:0;
+  }
+  .switch-type-link:hover{ color: var(--navy); }
+
   @media print{
     body{ background:#fff; padding:0; }
     .actions{ display:none; }
@@ -464,10 +558,34 @@
     </div>
   </div>
 
+  <div id="typeOverlay" class="hidden">
+    <div class="type-box">
+      <h2>What kind of quotation?</h2>
+      <p class="sub">This determines the quotation ID prefix</p>
+      <div class="type-choices">
+        <div class="type-choice" onclick="chooseType('individual')">
+          <span class="badge">R &ndash; XXXX</span>
+          <h3>Individual</h3>
+          <p>Personal / retail motor policy</p>
+        </div>
+        <div class="type-choice" onclick="chooseType('corporate')">
+          <span class="badge">C &ndash; XXXX</span>
+          <h3>Corporate</h3>
+          <p>Fleet, rental, or company-owned vehicles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="appRoot" class="app-hidden">
   <div class="signed-in-bar">
     <span id="signedInAs"></span>
-    <button type="button" onclick="doLogout()">Sign out</button>
+    <span>
+      <span id="typeBadge" class="type-pill"></span>
+      <button type="button" class="switch-type-link" onclick="showTypeOverlay()">Switch type</button>
+      &nbsp;&middot;&nbsp;
+      <button type="button" onclick="doLogout()">Sign out</button>
+    </span>
   </div>
 
   <div class="sheet">
@@ -651,18 +769,36 @@ async function doLogin(){
 async function doLogout(){
   await supabaseClient.auth.signOut();
   document.getElementById('appRoot').classList.add('app-hidden');
+  document.getElementById('typeOverlay').classList.add('hidden');
   document.getElementById('loginOverlay').classList.remove('hidden');
   document.getElementById('loginEmail').value = '';
   document.getElementById('loginPassword').value = '';
+  selectedQuoteType = null;
 }
 
 function onSignedIn(session){
   document.getElementById('loginOverlay').classList.add('hidden');
+  currentUserEmail = session.user.email;
+  document.getElementById('signedInAs').textContent = 'Signed in as ' + currentUserEmail;
+  showTypeOverlay();
+}
+
+function showTypeOverlay(){
+  document.getElementById('appRoot').classList.add('app-hidden');
+  document.getElementById('typeOverlay').classList.remove('hidden');
+}
+
+function chooseType(type){
+  selectedQuoteType = type; // 'individual' or 'corporate'
+  document.getElementById('typeOverlay').classList.add('hidden');
   document.getElementById('appRoot').classList.remove('app-hidden');
-  const email = session.user.email;
-  document.getElementById('signedInAs').textContent = 'Signed in as ' + email;
+
+  const badge = document.getElementById('typeBadge');
+  badge.textContent = type === 'individual' ? 'INDIVIDUAL (R)' : 'CORPORATE (C)';
+
   const underwriterField = document.querySelector('.meta input[placeholder="Your name"]');
-  if (underwriterField && !underwriterField.value) underwriterField.value = email;
+  if (underwriterField && !underwriterField.value) underwriterField.value = currentUserEmail;
+
   newQuotationNumber();
   calc();
 }
@@ -672,6 +808,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const pw = document.getElementById('loginPassword');
   if (pw) pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
 });
+
+let currentUserEmail = null;
+let selectedQuoteType = null; // 'individual' or 'corporate'
 
 // Check for an existing session on page load (so you're not asked to
 // sign in again every time you open the tab)
@@ -683,17 +822,18 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 async function newQuotationNumber(){
+  if (!selectedQuoteType) return;
   const field = document.getElementById('quoteNo');
-  const originalPlaceholder = field.value;
+  const originalValue = field.value;
   field.value = 'Generating…';
   field.disabled = true;
   try{
-    const { data, error } = await supabaseClient.rpc('next_quotation_number');
+    const { data, error } = await supabaseClient.rpc('next_quotation_number', { p_type: selectedQuoteType });
     if (error) throw error;
     field.value = data;
   } catch(err){
     console.error('Could not reach the shared numbering service:', err);
-    field.value = originalPlaceholder;
+    field.value = originalValue;
     alert('Could not generate a quotation number — check your internet connection and try again.');
   } finally {
     field.disabled = false;
