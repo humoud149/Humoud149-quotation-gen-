@@ -14,7 +14,7 @@
 // Copyright (c) 2009 Kazuhiko Arase
 //
 // URL: http://www.d-project.com/
-
+//
 // Licensed under the MIT license:
 //  http://www.opensource.org/licenses/mit-license.php
 //
@@ -2456,7 +2456,8 @@ var qrcode = function() {
     color: var(--muted);
     margin-bottom: 5px;
   }
-  .field input{
+  .field input,
+  .field select{
     width:100%;
     border:none;
     border-bottom: 1px solid var(--line);
@@ -2465,8 +2466,23 @@ var qrcode = function() {
     font-family:'Inter',sans-serif;
     color: var(--ink);
     background: transparent;
+    border-radius: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7086' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 2px center;
+    background-size: 10px 7px;
+    padding-right: 18px;
   }
-  .field input:focus{ outline:none; border-bottom: 1px solid var(--gold); }
+  .sheet[dir="rtl"] .field select{
+    background-position: left 2px center;
+    padding-right: 2px;
+    padding-left: 18px;
+  }
+  .field select:invalid{ color: var(--muted); }
+  .field input:focus,
+  .field select:focus{ outline:none; border-bottom: 1px solid var(--gold); }
 
   /* Coverage boxes */
   .coverage-grid{
@@ -2627,11 +2643,11 @@ var qrcode = function() {
   .qr-wrap canvas,
   .qr-wrap img{
     display:block;
-    width: 68px;
-    height: 68px;
+    width: 108px;
+    height: 108px;
     border: 1px solid var(--line);
     border-radius: 4px;
-    padding: 3px;
+    padding: 4px;
     background:#fff;
   }
   .qr-wrap .qr-caption{
@@ -3024,7 +3040,8 @@ var qrcode = function() {
     .no-print{ display:none !important; }
     .signed-in-bar{ display:none !important; }
     .sheet{ box-shadow:none; border-radius:0; max-width:none; }
-    input{ color:#000 !important; }
+    input, select{ color:#000 !important; }
+    select{ background-image:none !important; padding-right:2px !important; padding-left:2px !important; }
     .terms-editable{ color:#000 !important; overflow: visible !important; height:auto !important; }
     .box, .addons, .terms-editable, .meta, .grid, .coverage-grid,
     table, tr, .sign-row, .header{
@@ -3149,7 +3166,13 @@ var qrcode = function() {
         <div class="field"><label data-i18n="lblCivilId">Civil ID</label><input type="text" id="civilId" class="ltr-field" placeholder="XXXXXXXXXXXX" /></div>
         <div class="field"><label data-i18n="lblMobile">Mobile</label><input type="text" id="mobile" class="ltr-field" placeholder="+965 ..." /></div>
         <div class="field"><label data-i18n="lblEmail">Email</label><input type="text" id="clientEmail" class="ltr-field" placeholder="client@email.com" /></div>
-        <div class="field"><label data-i18n="lblPolicyType">Policy Type</label><input type="text" id="policyType" data-i18n-ph="phPolicyType" placeholder="New / Renewal" /></div>
+        <div class="field"><label data-i18n="lblPolicyType">Policy Type</label>
+          <select id="policyType">
+            <option value="" disabled selected data-i18n="phPolicyTypeSelect">Select...</option>
+            <option value="New" data-i18n="optNew">New</option>
+            <option value="Renewal" data-i18n="optRenewal">Renewal</option>
+          </select>
+        </div>
         <div class="field"><label data-i18n="lblExistingPolicy">Existing Policy No. (if renewal)</label><input type="text" id="existingPolicyNo" class="ltr-field" /></div>
       </div>
 
@@ -3157,7 +3180,11 @@ var qrcode = function() {
       <div class="grid">
         <div class="field"><label data-i18n="lblMake">Make</label><input type="text" id="vehicleMake" data-i18n-ph="phMake" placeholder="e.g. Toyota" /></div>
         <div class="field"><label data-i18n="lblModel">Model</label><input type="text" id="vehicleModel" data-i18n-ph="phModel" placeholder="e.g. Land Cruiser" /></div>
-        <div class="field"><label data-i18n="lblYear">Year of Manufacture</label><input type="text" id="vehicleYear" class="ltr-field" placeholder="2024" /></div>
+        <div class="field"><label data-i18n="lblYear">Year of Manufacture</label>
+          <select id="vehicleYear" class="ltr-field">
+            <option value="" disabled selected data-i18n="phYearSelect">Select...</option>
+          </select>
+        </div>
         <div class="field"><label data-i18n="lblPlate">Plate Number</label><input type="text" id="plateNumber" class="ltr-field" /></div>
         <div class="field"><label data-i18n="lblChassis">Chassis No.</label><input type="text" id="chassisNo" class="ltr-field" /></div>
         <div class="field"><label data-i18n="lblUsage">Usage</label><input type="text" id="usage" data-i18n-ph="phUsage" placeholder="Private / Commercial" /></div>
@@ -3288,6 +3315,10 @@ const TRANSLATIONS = {
     lblEmail: 'Email',
     lblPolicyType: 'Policy Type',
     phPolicyType: 'New / Renewal',
+    phPolicyTypeSelect: 'Select...',
+    optNew: 'New',
+    optRenewal: 'Renewal',
+    phYearSelect: 'Select...',
     lblExistingPolicy: 'Existing Policy No. (if renewal)',
     secVehicleDetails: 'Vehicle Details',
     lblMake: 'Make',
@@ -3344,6 +3375,10 @@ const TRANSLATIONS = {
     lblEmail: 'البريد الإلكتروني',
     lblPolicyType: 'نوع الوثيقة',
     phPolicyType: 'جديد / تجديد',
+    phPolicyTypeSelect: 'اختر...',
+    optNew: 'جديد',
+    optRenewal: 'تجديد',
+    phYearSelect: 'اختر...',
     lblExistingPolicy: 'رقم الوثيقة الحالية (إن وجد التجديد)',
     secVehicleDetails: 'بيانات المركبة',
     lblMake: 'الصانع',
@@ -3459,7 +3494,22 @@ function onSignedIn(session){
 document.addEventListener('DOMContentLoaded', () => {
   const pw = document.getElementById('loginPassword');
   if (pw) pw.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+  populateYearDropdown();
 });
+
+// Year of Manufacture options: next year down to 20 years back, covers
+// brand-new (next model year) through older vehicles still on the road.
+function populateYearDropdown(){
+  const select = document.getElementById('vehicleYear');
+  if (!select) return;
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear + 1; y >= currentYear - 20; y--){
+    const opt = document.createElement('option');
+    opt.value = String(y);
+    opt.textContent = String(y);
+    select.appendChild(opt);
+  }
+}
 
 // Check for an existing session on page load
 (async () => {
@@ -3640,7 +3690,7 @@ async function renderQrCode(){
     const qr = qrcode(0, 'M'); // 0 = auto-detect size, 'M' = medium error correction
     qr.addData(url);
     qr.make();
-    img.src = qr.createDataURL(6, 2); // 6px per cell, 2-cell quiet margin
+    img.src = qr.createDataURL(4, 4); // 4px per cell, 4-cell quiet margin — sized to downscale gently to the 108px display box
     if (wrap) wrap.style.visibility = 'visible';
   } catch(err){
     console.error('Could not render QR code:', err);
