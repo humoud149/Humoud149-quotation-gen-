@@ -213,6 +213,26 @@
     font-size: 14px; background:#fff; padding: 40px 30px; border-radius: 8px;
   }
 
+  .ref-page{
+    page-break-before: always;
+    break-before: page;
+    padding-top: 6px;
+    font-family: 'Cairo', 'Inter', sans-serif;
+  }
+  .ref-page .section-title{ font-family: 'Cairo', sans-serif; }
+  .ref-subnote{ font-size: 12px; color: var(--muted); margin: -6px 0 14px; font-weight:600; }
+  .ref-exclusions{
+    margin: 0 0 30px; padding-inline-start: 20px; font-size: 13px; line-height: 2; color: var(--ink);
+  }
+  .ref-table{
+    width:100%; border-collapse: collapse; border: 1px solid var(--line);
+    border-radius: 6px; overflow:hidden; font-size: 12.5px;
+  }
+  .ref-table thead th{ background: var(--navy); color: #fff; text-align: right; padding: 10px 14px; font-size: 11px; }
+  .ref-table tbody td{ padding: 8px 14px; border-top: 1px solid var(--line); color: var(--ink); }
+  .ref-table tbody td:last-child{ text-align: left; direction: ltr; font-weight:600; color: var(--navy); width: 130px; }
+  .ref-table tr.ref-group td{ background: var(--cream); font-weight:700; color: var(--navy); border-top: 1px solid var(--line); }
+
   @media print{
     body{ background:#fff; padding:0; }
     .actions{ display:none; }
@@ -220,6 +240,8 @@
     .box, .addons, .terms-box, .meta, .grid, .coverage-grid, table, tr, .sign-row, .header{
       page-break-inside: avoid; break-inside: avoid;
     }
+    .ref-table, .ref-table tbody{ page-break-inside: auto !important; break-inside: auto !important; }
+    .ref-table tr{ page-break-inside: avoid; break-inside: avoid; }
   }
 
   @media (max-width: 700px){
@@ -384,6 +406,45 @@ async function loadQuotation(){
         <div class="footer">
           <span>${esc(t.footerCompany)}</span>
           <span class="note">${esc(t.footerNote)}</span>
+        </div>
+
+        <div class="ref-page" dir="rtl">
+          <div class="section-title" style="margin-top:0;">استثناءات من التغطية</div>
+          <p class="ref-subnote">للحادث المعلوم والمجهول</p>
+          <ol class="ref-exclusions">
+            <li>السرقة بسبب الإهمال</li>
+            <li>الفيضانات وجميع الكوارث الطبيعية بما في ذلك الأمطار</li>
+            <li>الحوادث نتيجة السير على الطرق غير المعبدة</li>
+            <li>الحروب أو أعمال الشغب</li>
+            <li>أي تعديل أو إضافات على السيارة دون إشعار من شركة الخليج للتأمين وإعادة التأمين</li>
+          </ol>
+
+          <div class="section-title">تغطيات إضافية (اختيارية)</div>
+          <table class="ref-table">
+            <thead><tr><th>الإضافات</th><th>د.ك</th></tr></thead>
+            <tbody>
+              <tr class="ref-group"><td colspan="2">1) 15 يوم سيارة بديلة</td></tr>
+              <tr><td>سيارة بديلة فئة صغيرة</td><td>35</td></tr>
+              <tr><td>سيارة بديلة فئة متوسطة</td><td>45</td></tr>
+              <tr><td>سيارة بديلة فئة كبيرة</td><td>55</td></tr>
+              <tr><td>سيارة بديلة فئة فارهة</td><td>200</td></tr>
+              <tr class="ref-group"><td colspan="2">2) 20 يوم سيارة بديلة</td></tr>
+              <tr><td>سيارة بديلة فئة صغيرة</td><td>40</td></tr>
+              <tr><td>سيارة بديلة فئة متوسطة</td><td>50</td></tr>
+              <tr><td>سيارة بديلة فئة كبيرة</td><td>70</td></tr>
+              <tr><td>سيارة بديلة فئة فارهة</td><td>260</td></tr>
+              <tr><td>تغطية الكوارث الطبيعية</td><td>60</td></tr>
+              <tr><td>تغطية الحروب</td><td>0.5%</td></tr>
+              <tr><td>تغطية التمديد الجغرافي</td><td>1% بحد أدنى 100 د.ك</td></tr>
+              <tr><td>تغطية الحوادث الشخصية</td><td>30</td></tr>
+              <tr><td>3) خدمة المساعدة على الطريق</td><td>5</td></tr>
+              <tr><td>4) عدم حق الرجوع</td><td>30</td></tr>
+              <tr><td>5) الحوادث الشخصية</td><td>20</td></tr>
+              <tr class="ref-group"><td colspan="2">تغطية حماية السيارة</td></tr>
+              <tr><td>لغاية 500 د.ك</td><td>25</td></tr>
+              <tr><td>501 د.ك - 1,000 د.ك</td><td>50</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
