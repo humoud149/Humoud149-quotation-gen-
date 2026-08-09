@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>GIG Motor Insurance Quotation</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Cairo:wght@500;600;700;800&display=swap');
 
@@ -310,8 +311,32 @@
     border-top: 1px solid var(--line);
     display:flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 10.5px;
     color: var(--muted);
+    gap: 16px;
+  }
+
+  .qr-wrap{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    flex-shrink:0;
+  }
+  .qr-wrap canvas{
+    display:block;
+    width: 68px;
+    height: 68px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 3px;
+    background:#fff;
+  }
+  .qr-wrap .qr-caption{
+    font-size: 9.5px;
+    color: var(--muted);
+    max-width: 110px;
+    line-height: 1.3;
   }
 
   .actions{
@@ -916,6 +941,10 @@
 
       <div class="footer">
         <span data-i18n="footerCompany">Gulf Insurance Group (GIG) &mdash; Kuwait</span>
+        <div class="qr-wrap no-screen-hide">
+          <canvas id="qrCanvas"></canvas>
+          <span class="qr-caption" data-i18n="qrCaption">Scan to view this quotation online</span>
+        </div>
         <span data-i18n="footerNote">This is a quotation, not a policy document.</span>
       </div>
     </div>
@@ -987,6 +1016,7 @@ const TRANSLATIONS = {
     footerCompany: 'Gulf Insurance Group (GIG) — Kuwait',
     footerNote: 'This is a quotation, not a policy document.',
     btnPrint: 'Print / Save as PDF',
+    qrCaption: 'Scan to view this quotation online',
     defaultTerms:
 `1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
 2. Premium is subject to inspection of the vehicle prior to policy issuance.
@@ -1042,6 +1072,7 @@ const TRANSLATIONS = {
     footerCompany: 'مجموعة الخليج للتأمين (GIG) — الكويت',
     footerNote: 'هذا عرض سعر وليس وثيقة تأمين.',
     btnPrint: 'طباعة / حفظ كـ PDF',
+    qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
     defaultTerms:
 `1. هذا العرض صالح لمدة 15 يومًا من تاريخ إصداره وخاضع لموافقة الاكتتاب.
 2. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
@@ -1285,7 +1316,29 @@ function openQuotationForm(type){
   if (underwriterField && !underwriterField.value) underwriterField.value = currentUserEmail;
 
   calc();
+  renderQrCode();
 }
+
+// ---------- QR code: links to the read-only public view of this
+// exact quotation (view.html), which only resolves once the
+// quotation has actually been printed/saved (status = 'completed').
+function getSiteBaseUrl(){
+  const path = window.location.pathname;
+  const dir = path.substring(0, path.lastIndexOf('/') + 1);
+  return window.location.origin + dir;
+}
+
+async function renderQrCode(){
+  const canvas = document.getElementById('qrCanvas');
+  if (!canvas || !currentQuotationId) return;
+  const url = getSiteBaseUrl() + 'view.html?id=' + currentQuotationId;
+  try{
+    await QRCode.toCanvas(canvas, url, { width: 130, margin: 1, color: { dark: '#0b1339', light: '#ffffff' } });
+  } catch(err){
+    console.error('Could not render QR code:', err);
+  }
+}
+
 
 
 // ---------- Collect / populate form data ----------
