@@ -200,13 +200,20 @@
   }
   .footer .note{ font-style: italic; }
 
-  .actions{ max-width: 900px; margin: 16px auto 0; display:flex; justify-content:flex-end; }
+  .actions{ max-width: 900px; margin: 16px auto 0; display:flex; justify-content:flex-end; gap: 10px; }
   .actions button{
     border:none; padding: 10px 20px; border-radius: 5px; font-size: 13px;
     font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
     background: var(--navy); color:#fff;
   }
   .actions button:hover{ background: var(--navy-2); }
+  .actions .policy-link{
+    display:inline-flex; align-items:center;
+    border: 1.5px solid var(--navy); padding: 9px 20px; border-radius: 5px;
+    font-size: 13px; font-weight:600; font-family:'Inter',sans-serif;
+    background: #fff; color: var(--navy); text-decoration:none; cursor:pointer;
+  }
+  .actions .policy-link:hover{ background: var(--cream); }
 
   .state-msg{
     max-width: 500px; margin: 80px auto; text-align:center; color: var(--muted);
@@ -279,7 +286,7 @@ const T = {
     lblTotalPremium: 'Total Premium', secTerms: 'Terms & Conditions',
     lblPreparedBy: 'Prepared By', lblContactNumber: 'Contact Number',
     footerCompany: 'Gulf Insurance Group (GIG) — Kuwait', footerNote: 'This is a quotation, not a policy document.',
-    btnPrint: 'Print / Save as PDF', notFound: 'This quotation could not be found, or is no longer available.'
+    btnPrint: 'Print / Save as PDF', btnPolicyWording: 'Policy Wording (EN / AR)', notFound: 'This quotation could not be found, or is no longer available.'
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات', appSubtitle: 'مجموعة الخليج للتأمين — الكويت',
@@ -293,7 +300,7 @@ const T = {
     lblTotalPremium: 'إجمالي القسط', secTerms: 'الشروط والأحكام',
     lblPreparedBy: 'أُعد بواسطة', lblContactNumber: 'رقم التواصل',
     footerCompany: 'مجموعة الخليج للتأمين (GIG) — الكويت', footerNote: 'هذا عرض سعر وليس وثيقة تأمين.',
-    btnPrint: 'طباعة / حفظ كـ PDF', notFound: 'تعذر العثور على هذا العرض أو أنه لم يعد متاحًا.'
+    btnPrint: 'طباعة / حفظ كـ PDF', btnPolicyWording: 'نص وثيقة التأمين (عربي / إنجليزي)', notFound: 'تعذر العثور على هذا العرض أو أنه لم يعد متاحًا.'
   }
 };
 
@@ -452,7 +459,10 @@ async function loadQuotation(){
 
   const actions = document.createElement('div');
   actions.className = 'actions';
-  actions.innerHTML = `<button onclick="window.print()">${esc(t.btnPrint)}</button>`;
+  actions.innerHTML = `
+    <a class="policy-link" href="policy-wording.pdf" target="_blank" rel="noopener">${esc(t.btnPolicyWording)}</a>
+    <button onclick="window.print()">${esc(t.btnPrint)}</button>
+  `;
   content.appendChild(actions);
 
   document.title = row.quote_no ? `${row.quote_no} — GIG Motor Quotation` : 'GIG Motor Quotation';

@@ -2675,6 +2675,21 @@ var qrcode = function() {
   }
   .btn-print{ background: var(--navy); color:#fff; }
   .btn-print:hover{ background: var(--navy-2); }
+  .policy-link{
+    display:inline-flex;
+    align-items:center;
+    border: 1.5px solid var(--navy);
+    padding: 9px 20px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    background: #fff;
+    color: var(--navy);
+    text-decoration:none;
+    cursor:pointer;
+  }
+  .policy-link:hover{ background: var(--cream); }
 
   @page{
     size: A4;
@@ -3383,6 +3398,7 @@ var qrcode = function() {
 
 
   <div class="actions">
+    <a class="policy-link no-print" href="policy-wording.pdf" target="_blank" rel="noopener" data-i18n="btnPolicyWording">Policy Wording (EN / AR)</a>
     <button class="btn-print" onclick="handlePrint()" data-i18n="btnPrint">Print / Save as PDF</button>
   </div>
   </div><!-- /#appRoot -->
@@ -3451,6 +3467,7 @@ const TRANSLATIONS = {
     footerCompany: 'Gulf Insurance Group (GIG) — Kuwait',
     footerNote: 'This is a quotation, not a policy document.',
     btnPrint: 'Print / Save as PDF',
+    btnPolicyWording: 'Policy Wording (EN / AR)',
     qrCaption: 'Scan to view this quotation online',
     defaultTerms:
 `1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
@@ -3511,6 +3528,7 @@ const TRANSLATIONS = {
     footerCompany: 'مجموعة الخليج للتأمين (GIG) — الكويت',
     footerNote: 'هذا عرض سعر وليس وثيقة تأمين.',
     btnPrint: 'طباعة / حفظ كـ PDF',
+    btnPolicyWording: 'نص وثيقة التأمين (عربي / إنجليزي)',
     qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
     defaultTerms:
 `1. هذا العرض صالح لمدة 15 يومًا من تاريخ إصداره وخاضع لموافقة الاكتتاب.
