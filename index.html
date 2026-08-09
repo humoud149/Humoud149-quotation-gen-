@@ -323,7 +323,8 @@
     gap: 10px;
     flex-shrink:0;
   }
-  .qr-wrap canvas{
+  .qr-wrap canvas,
+  .qr-wrap img{
     display:block;
     width: 68px;
     height: 68px;
@@ -720,6 +721,7 @@
     body{ background:#fff; padding:0; }
     .actions{ display:none; }
     .no-print{ display:none !important; }
+    .signed-in-bar{ display:none !important; }
     .sheet{ box-shadow:none; border-radius:0; max-width:none; }
     input{ color:#000 !important; }
     .terms-editable{ color:#000 !important; overflow: visible !important; height:auto !important; }
@@ -941,8 +943,8 @@
 
       <div class="footer">
         <span data-i18n="footerCompany">Gulf Insurance Group (GIG) &mdash; Kuwait</span>
-        <div class="qr-wrap no-screen-hide">
-          <canvas id="qrCanvas"></canvas>
+        <div class="qr-wrap">
+          <img id="qrImage" alt="QR code" />
           <span class="qr-caption" data-i18n="qrCaption">Scan to view this quotation online</span>
         </div>
         <span data-i18n="footerNote">This is a quotation, not a policy document.</span>
@@ -1329,13 +1331,17 @@ function getSiteBaseUrl(){
 }
 
 async function renderQrCode(){
-  const canvas = document.getElementById('qrCanvas');
-  if (!canvas || !currentQuotationId) return;
+  const img = document.getElementById('qrImage');
+  const wrap = document.querySelector('.qr-wrap');
+  if (!img || !currentQuotationId) return;
   const url = getSiteBaseUrl() + 'view.html?id=' + currentQuotationId;
   try{
-    await QRCode.toCanvas(canvas, url, { width: 130, margin: 1, color: { dark: '#0b1339', light: '#ffffff' } });
+    const dataUrl = await QRCode.toDataURL(url, { width: 260, margin: 1, color: { dark: '#0b1339', light: '#ffffff' } });
+    img.src = dataUrl;
+    if (wrap) wrap.style.visibility = 'visible';
   } catch(err){
     console.error('Could not render QR code:', err);
+    if (wrap) wrap.style.visibility = 'hidden';
   }
 }
 
@@ -1507,6 +1513,17 @@ async function handlePrint(){
 
   btn.disabled = false;
   btn.textContent = originalLabel;
+
+  await renderQrCode();
+  // Give the browser a beat to actually paint the freshly-set image
+  // before the print dialog snapshots the page.
+  await new Promise(resolve => {
+    const img = document.getElementById('qrImage');
+    if (img && img.complete) return resolve();
+    if (img) { img.onload = resolve; img.onerror = resolve; setTimeout(resolve, 400); }
+    else resolve();
+  });
+
   window.print();
 }
 
