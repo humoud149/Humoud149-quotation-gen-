@@ -190,6 +190,19 @@
     white-space: pre-wrap; word-wrap: break-word;
   }
 
+  .at-block{ margin-bottom: 22px; }
+  .at-group-title{
+    font-size: 11px; font-weight:700; color:#fff; background: var(--navy);
+    padding: 9px 14px; border-radius: 6px 6px 0 0; letter-spacing:0.6px; text-transform:uppercase;
+  }
+  .at-table{ width:100%; border-collapse:collapse; border: 1px solid var(--line); border-top:none; }
+  .at-table td{ padding: 9px 14px; border-top: 1px solid var(--line); font-size: 12px; line-height:1.6; vertical-align: top; }
+  .at-label{
+    width: 170px; font-weight:600; color: var(--muted); background: var(--cream);
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .at-value{ color: var(--ink); white-space: pre-wrap; word-wrap: break-word; }
+
   .sign-row{ display:grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 30px; }
   .sign-row .field .val{ border-bottom: 1px solid var(--ink); }
 
@@ -282,6 +295,12 @@ const T = {
     secVehicleDetails: 'Vehicle Details', lblMake: 'Make', lblModel: 'Model', lblYear: 'Year of Manufacture',
     lblPlate: 'Plate Number', lblChassis: 'Chassis No.', lblUsage: 'Usage',
     secCoverage: 'Coverage & Premium', lblSumInsured: 'Sum Insured', lblRate: 'Rate', lblBasePremium: 'Base Premium',
+    lblRepairLocation: 'Repair Location', lblSupervisionFee: 'Supervision & Issuance Fees',
+    optInsideAgency: 'Inside Agency', optOutsideAgency: 'Outside Agency',
+    secAccidentTerms: 'Accident Terms', atGroupKnown: 'Known Accident', atGroupUnknown: 'Unknown Accident',
+    atLabelDefinition: 'Definition', atLabelCoverage: 'Coverage', atLabelDeductible: 'Deductible',
+    atLabelDepreciation: 'Depreciation Rate', atLabelWindshield: 'Front Windshield',
+    atLabelRimsGlass: 'Rims, Tires, Glass & Cameras', atLabelTotalLoss: 'Total Loss Depreciation',
     addonHeaderName: 'Add-on / Benefit', addonHeaderAmount: 'Amount (KWD)', addonSubtotalLabel: 'Add-ons Subtotal: KWD',
     lblTotalPremium: 'Total Premium', secTerms: 'Terms & Conditions',
     lblPreparedBy: 'Prepared By', lblContactNumber: 'Contact Number',
@@ -296,6 +315,12 @@ const T = {
     secVehicleDetails: 'بيانات المركبة', lblMake: 'الصانع', lblModel: 'الموديل', lblYear: 'سنة الصنع',
     lblPlate: 'رقم اللوحة', lblChassis: 'رقم الهيكل', lblUsage: 'الاستخدام',
     secCoverage: 'التغطية وقسط التأمين', lblSumInsured: 'مبلغ التأمين', lblRate: 'المعدل', lblBasePremium: 'القسط الأساسي',
+    lblRepairLocation: 'مكان التصليح', lblSupervisionFee: 'رسوم الرقابة والإشراف + الإصدار',
+    optInsideAgency: 'داخل الوكالة', optOutsideAgency: 'خارج الوكالة',
+    secAccidentTerms: 'شروط الحوادث', atGroupKnown: 'الحادث المعلوم', atGroupUnknown: 'الحادث المجهول',
+    atLabelDefinition: 'تعريف', atLabelCoverage: 'التغطية', atLabelDeductible: 'مبلغ التحمل',
+    atLabelDepreciation: 'نسبة الاستهلاك', atLabelWindshield: 'الزجاج الامامي',
+    atLabelRimsGlass: 'الرنجات والإطارات والزجاج والكاميرات', atLabelTotalLoss: 'نسبة استهلاك الخسارة الكلية',
     addonHeaderName: 'الإضافات / المزايا', addonHeaderAmount: 'المبلغ (د.ك)', addonSubtotalLabel: 'إجمالي الإضافات: د.ك',
     lblTotalPremium: 'إجمالي القسط', secTerms: 'الشروط والأحكام',
     lblPreparedBy: 'أُعد بواسطة', lblContactNumber: 'رقم التواصل',
@@ -345,6 +370,15 @@ async function loadQuotation(){
   let addonSubtotal = 0;
   addons.forEach(a => { addonSubtotal += parseFloat(a.amount) || 0; });
 
+  const repairLocationLabel = d.repairLocation === 'Inside Agency' ? t.optInsideAgency
+    : d.repairLocation === 'Outside Agency' ? t.optOutsideAgency
+    : '—';
+
+  function atRow(label, value){
+    return `<tr><td class="at-label">${esc(label)}</td><td class="at-value">${esc(value || '—')}</td></tr>`;
+  }
+  const at = d.accidentTerms || {};
+
   content.innerHTML = `
     <div class="sheet" dir="${dir}">
       <div class="header">
@@ -390,6 +424,11 @@ async function loadQuotation(){
           <div class="box"><label>${esc(t.lblBasePremium)}</label><div class="value ltr-field">KWD ${esc(d.basePremium || '0.000')}</div></div>
         </div>
 
+        <div class="coverage-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="box"><label>${esc(t.lblRepairLocation)}</label><div class="value" style="font-size:15px;">${esc(repairLocationLabel)}</div></div>
+          <div class="box"><label>${esc(t.lblSupervisionFee)}</label><div class="value ltr-field">KWD ${esc(d.supervisionFee || '0.000')}</div></div>
+        </div>
+
         <div class="addons">
           <table>
             <thead><tr><td>${esc(t.addonHeaderName)}</td><td class="amt-col">${esc(t.addonHeaderAmount)}</td></tr></thead>
@@ -400,6 +439,33 @@ async function loadQuotation(){
 
         <div class="coverage-grid" style="grid-template-columns: 1fr; margin-bottom: 26px;">
           <div class="box total"><label>${esc(t.lblTotalPremium)}</label><div class="value ltr-field">KWD ${esc(d.totalPremium || '0.000')}</div></div>
+        </div>
+
+        <div class="section-title">${esc(t.secAccidentTerms)}</div>
+
+        <div class="at-block">
+          <div class="at-group-title">${esc(t.atGroupKnown)}</div>
+          <table class="at-table">
+            ${atRow(t.atLabelDefinition, at.atKnownDefinition)}
+            ${atRow(t.atLabelDeductible, at.atKnownDeductible)}
+            ${atRow(t.atLabelDepreciation, at.atKnownDepreciation)}
+            ${atRow(t.atLabelWindshield, at.atKnownWindshield)}
+            ${atRow(t.atLabelRimsGlass, at.atKnownRimsGlass)}
+            ${atRow(t.atLabelTotalLoss, at.atKnownTotalLoss)}
+          </table>
+        </div>
+
+        <div class="at-block">
+          <div class="at-group-title">${esc(t.atGroupUnknown)}</div>
+          <table class="at-table">
+            ${atRow(t.atLabelDefinition, at.atUnknownDefinition)}
+            ${atRow(t.atLabelCoverage, at.atUnknownCoverage)}
+            ${atRow(t.atLabelDeductible, at.atUnknownDeductible)}
+            ${atRow(t.atLabelDepreciation, at.atUnknownDepreciation)}
+            ${atRow(t.atLabelWindshield, at.atUnknownWindshield)}
+            ${atRow(t.atLabelRimsGlass, at.atUnknownRimsGlass)}
+            ${atRow(t.atLabelTotalLoss, at.atUnknownTotalLoss)}
+          </table>
         </div>
 
         <div class="section-title">${esc(t.secTerms)}</div>

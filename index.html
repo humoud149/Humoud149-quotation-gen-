@@ -2467,6 +2467,8 @@ var qrcode = function() {
     color: var(--ink);
     background: transparent;
     border-radius: 0;
+  }
+  .field select{
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7086' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
@@ -2513,7 +2515,8 @@ var qrcode = function() {
     align-items:baseline;
     gap: 4px;
   }
-  .box input{
+  .box input,
+  .box select{
     border:none;
     background:transparent;
     font-size: 20px;
@@ -2521,8 +2524,12 @@ var qrcode = function() {
     color: var(--navy);
     width: 100%;
     font-family:'Inter',sans-serif;
+    appearance:none;
+    -webkit-appearance:none;
   }
-  .box input:focus{ outline:none; }
+  .box select{ font-size: 15px; }
+  .box input:focus,
+  .box select:focus{ outline:none; }
   .box .suffix{ font-size: 13px; color: var(--muted); }
 
   .box.total{
@@ -3103,6 +3110,54 @@ var qrcode = function() {
     border-top: 1px solid var(--line);
   }
 
+  /* Accident Terms — editable Known/Unknown accident breakdown */
+  .at-block{ margin-bottom: 22px; }
+  .at-group-title{
+    font-size: 11px;
+    font-weight:700;
+    color:#fff;
+    background: var(--navy);
+    padding: 9px 14px;
+    border-radius: 6px 6px 0 0;
+    letter-spacing:0.6px;
+    text-transform:uppercase;
+  }
+  .at-table{
+    width:100%;
+    border-collapse:collapse;
+    border: 1px solid var(--line);
+    border-top:none;
+  }
+  .at-table td{
+    padding: 9px 14px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    line-height:1.6;
+    vertical-align: top;
+  }
+  .at-label{
+    width: 170px;
+    font-weight:600;
+    color: var(--muted);
+    background: var(--cream);
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .at-value{ color: var(--ink); white-space: pre-wrap; word-wrap: break-word; }
+  .at-value[contenteditable="true"]{ cursor:text; }
+  .at-value[contenteditable="true"]:focus{
+    outline: 1.5px solid var(--gold);
+    outline-offset: -1.5px;
+    background: #fffdf6;
+  }
+  .at-hint{
+    font-size: 10.5px;
+    color: var(--muted);
+    margin: -8px 0 12px;
+    font-style: italic;
+  }
+
   @media print{
     body{ background:#fff; padding:0; }
     .actions{ display:none; }
@@ -3290,6 +3345,24 @@ var qrcode = function() {
         </div>
       </div>
 
+      <div class="coverage-grid">
+        <div class="box">
+          <label data-i18n="lblRepairLocation">Repair Location</label>
+          <select id="repairLocation">
+            <option value="" disabled selected data-i18n="phSelect">Select...</option>
+            <option value="Inside Agency" data-i18n="optInsideAgency">Inside Agency</option>
+            <option value="Outside Agency" data-i18n="optOutsideAgency">Outside Agency</option>
+          </select>
+        </div>
+        <div class="box">
+          <label data-i18n="lblSupervisionFee">Supervision &amp; Issuance Fees</label>
+          <div class="value-row">
+            <span class="prefix">KWD</span>
+            <input type="number" id="supervisionFee" class="ltr-field" placeholder="0.000" step="0.001" />
+          </div>
+        </div>
+      </div>
+
       <div class="addons">
         <table>
           <thead>
@@ -3327,6 +3400,34 @@ var qrcode = function() {
           </div>
           <button type="button" class="mini-btn recalc-btn no-print" onclick="recalcTotal()" data-i18n="btnRecalc">&#8635; Recalculate from Sum Insured + Add-ons</button>
         </div>
+      </div>
+
+      <div class="section-title" data-i18n="secAccidentTerms">Accident Terms</div>
+      <p class="at-hint" data-i18n="atHint">Click any value below to edit it for this quotation.</p>
+
+      <div class="at-block">
+        <div class="at-group-title" data-i18n="atGroupKnown">Known Accident</div>
+        <table class="at-table">
+          <tr><td class="at-label" data-i18n="atLabelDefinition">Definition</td><td class="at-value" id="atKnownDefinition" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelDeductible">Deductible</td><td class="at-value" id="atKnownDeductible" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelDepreciation">Depreciation Rate</td><td class="at-value" id="atKnownDepreciation" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelWindshield">Front Windshield</td><td class="at-value" id="atKnownWindshield" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelRimsGlass">Rims, Tires, Glass &amp; Cameras</td><td class="at-value" id="atKnownRimsGlass" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelTotalLoss">Total Loss Depreciation</td><td class="at-value" id="atKnownTotalLoss" contenteditable="true"></td></tr>
+        </table>
+      </div>
+
+      <div class="at-block">
+        <div class="at-group-title" data-i18n="atGroupUnknown">Unknown Accident</div>
+        <table class="at-table">
+          <tr><td class="at-label" data-i18n="atLabelDefinition">Definition</td><td class="at-value" id="atUnknownDefinition" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelCoverage">Coverage</td><td class="at-value" id="atUnknownCoverage" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelDeductible">Deductible</td><td class="at-value" id="atUnknownDeductible" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelDepreciation">Depreciation Rate</td><td class="at-value" id="atUnknownDepreciation" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelWindshield">Front Windshield</td><td class="at-value" id="atUnknownWindshield" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelRimsGlass">Rims, Tires, Glass &amp; Cameras</td><td class="at-value" id="atUnknownRimsGlass" contenteditable="true"></td></tr>
+          <tr><td class="at-label" data-i18n="atLabelTotalLoss">Total Loss Depreciation</td><td class="at-value" id="atUnknownTotalLoss" contenteditable="true"></td></tr>
+        </table>
       </div>
 
       <div class="section-title" data-i18n="secTerms">Terms &amp; Conditions</div>
@@ -3460,6 +3561,35 @@ const TRANSLATIONS = {
     lblTotalPremium: 'Total Premium',
     totalPremiumNote: '(editable — overrides auto-calculation)',
     btnRecalc: '↺ Recalculate from Sum Insured + Add-ons',
+    lblRepairLocation: 'Repair Location',
+    phSelect: 'Select...',
+    optInsideAgency: 'Inside Agency',
+    optOutsideAgency: 'Outside Agency',
+    lblSupervisionFee: 'Supervision & Issuance Fees',
+    secAccidentTerms: 'Accident Terms',
+    atHint: 'Click any value below to edit it for this quotation.',
+    atGroupKnown: 'Known Accident',
+    atGroupUnknown: 'Unknown Accident',
+    atLabelDefinition: 'Definition',
+    atLabelCoverage: 'Coverage',
+    atLabelDeductible: 'Deductible',
+    atLabelDepreciation: 'Depreciation Rate',
+    atLabelWindshield: 'Front Windshield',
+    atLabelRimsGlass: 'Rims, Tires, Glass & Cameras',
+    atLabelTotalLoss: 'Total Loss Depreciation',
+    atKnownDefinitionDefault: 'Accidents where the other party is known, as stated in the police report.',
+    atKnownDeductibleDefault: 'No deductible',
+    atKnownDepreciationDefault: 'No depreciation',
+    atKnownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
+    atKnownRimsGlassDefault: 'No deductible',
+    atKnownTotalLossDefault: '50%',
+    atUnknownDefinitionDefault: 'All accidents where there is no second party, as stated in the police report.',
+    atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,200 per accident. Any amount above this is borne by the insured at 50% of the total. Limited to incidents occurring while the vehicle is parked and unoccupied.',
+    atUnknownDeductibleDefault: 'No deductible',
+    atUnknownDepreciationDefault: 'No depreciation on replaced spare parts for the first five years from the vehicle\u2019s manufacture date.',
+    atUnknownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
+    atUnknownRimsGlassDefault: 'The insured bears 50% of the total repair cost.',
+    atUnknownTotalLossDefault: '50% depreciation',
     secTerms: 'Terms & Conditions',
     lblTermsNotes: 'Notes for the client',
     lblPreparedBy: 'Prepared By',
@@ -3521,6 +3651,35 @@ const TRANSLATIONS = {
     lblTotalPremium: 'إجمالي القسط',
     totalPremiumNote: '(قابل للتعديل — يتجاوز الحساب التلقائي)',
     btnRecalc: '↺ إعادة الحساب من مبلغ التأمين + الإضافات',
+    lblRepairLocation: 'مكان التصليح',
+    phSelect: 'اختر...',
+    optInsideAgency: 'داخل الوكالة',
+    optOutsideAgency: 'خارج الوكالة',
+    lblSupervisionFee: 'رسوم الرقابة والإشراف + الإصدار',
+    secAccidentTerms: 'شروط الحوادث',
+    atHint: 'اضغط على أي قيمة أدناه لتعديلها لهذا العرض.',
+    atGroupKnown: 'الحادث المعلوم',
+    atGroupUnknown: 'الحادث المجهول',
+    atLabelDefinition: 'تعريف',
+    atLabelCoverage: 'التغطية',
+    atLabelDeductible: 'مبلغ التحمل',
+    atLabelDepreciation: 'نسبة الاستهلاك',
+    atLabelWindshield: 'الزجاج الامامي',
+    atLabelRimsGlass: 'الرنجات والإطارات والزجاج والكاميرات',
+    atLabelTotalLoss: 'نسبة استهلاك الخسارة الكلية',
+    atKnownDefinitionDefault: 'الحوادث التي يكون بها الطرف الثاني معلوم كما هو مذكور بتقرير المخفر.',
+    atKnownDeductibleDefault: 'بدون تحمل',
+    atKnownDepreciationDefault: 'بدون استهلاك',
+    atKnownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
+    atKnownRimsGlassDefault: 'بدون تحمل',
+    atKnownTotalLossDefault: '50%',
+    atUnknownDefinitionDefault: 'جميع الحوادث التي لا يوجد بها طرف ثاني كما هو بتقرير المخفر.',
+    atUnknownCoverageDefault: '10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.',
+    atUnknownDeductibleDefault: 'بدون تحمل',
+    atUnknownDepreciationDefault: 'بدون استهلاك على قطع الغيار المستبدلة لأول خمس سنوات من صنع المركبة.',
+    atUnknownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
+    atUnknownRimsGlassDefault: 'يتحمل المؤمن له 50% من إجمالي التصليح.',
+    atUnknownTotalLossDefault: '50% نسبة استهلاك',
     secTerms: 'الشروط والأحكام',
     lblTermsNotes: 'ملاحظات للعميل',
     lblPreparedBy: 'أُعد بواسطة',
@@ -3820,6 +3979,11 @@ async function renderQrCode(){
 
 
 // ---------- Collect / populate form data ----------
+const ACCIDENT_TERM_FIELDS = [
+  'atKnownDefinition','atKnownDeductible','atKnownDepreciation','atKnownWindshield','atKnownRimsGlass','atKnownTotalLoss',
+  'atUnknownDefinition','atUnknownCoverage','atUnknownDeductible','atUnknownDepreciation','atUnknownWindshield','atUnknownRimsGlass','atUnknownTotalLoss'
+];
+
 function collectFormData(){
   const addons = [];
   document.querySelectorAll('#addonRows tr').forEach(tr => {
@@ -3828,6 +3992,12 @@ function collectFormData(){
     if (nameEl && (nameEl.value || (amtEl && amtEl.value))){
       addons.push({ name: nameEl.value, amount: amtEl ? amtEl.value : '' });
     }
+  });
+
+  const accidentTerms = {};
+  ACCIDENT_TERM_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) accidentTerms[id] = el.innerText;
   });
 
   return {
@@ -3850,10 +4020,13 @@ function collectFormData(){
     sumInsured: val('sumInsured'),
     rate: val('rate'),
     basePremium: val('basePremium'),
+    repairLocation: val('repairLocation'),
+    supervisionFee: val('supervisionFee'),
     addons: addons,
     totalPremium: val('totalPremium'),
     totalManuallyEdited: totalManuallyEdited,
     terms: document.getElementById('terms').innerText,
+    accidentTerms: accidentTerms,
     preparedBy: val('preparedBy'),
     contactNumber: val('contactNumber')
   };
@@ -3886,6 +4059,8 @@ function populateFormData(d){
   setVal('usage', d.usage);
   setVal('sumInsured', d.sumInsured);
   setVal('rate', d.rate);
+  setVal('repairLocation', d.repairLocation);
+  setVal('supervisionFee', d.supervisionFee);
   setVal('preparedBy', d.preparedBy);
   setVal('contactNumber', d.contactNumber);
 
@@ -3905,6 +4080,13 @@ function populateFormData(d){
     document.getElementById('terms').innerText = d.terms;
   }
 
+  if (d.accidentTerms){
+    ACCIDENT_TERM_FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && d.accidentTerms[id] !== undefined) el.innerText = d.accidentTerms[id];
+    });
+  }
+
   totalManuallyEdited = !!d.totalManuallyEdited;
   if (d.totalPremium !== undefined && totalManuallyEdited){
     setVal('totalPremium', d.totalPremium);
@@ -3919,7 +4101,7 @@ function resetForm(){
   document.getElementById('quoteNo').value = '';
   ['dateIssued','validUntil','underwriter','clientName','civilId','mobile','clientEmail',
    'policyType','existingPolicyNo','vehicleMake','vehicleModel','vehicleYear','plateNumber',
-   'chassisNo','usage','sumInsured','rate','preparedBy','contactNumber'].forEach(id => setVal(id, ''));
+   'chassisNo','usage','sumInsured','rate','repairLocation','supervisionFee','preparedBy','contactNumber'].forEach(id => setVal(id, ''));
 
   const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
 
@@ -3937,6 +4119,11 @@ function resetForm(){
     </tr>`;
 
   document.getElementById('terms').innerText = dict.defaultTerms;
+
+  ACCIDENT_TERM_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerText = dict[id + 'Default'] || '';
+  });
 
   totalManuallyEdited = false;
   calc();
