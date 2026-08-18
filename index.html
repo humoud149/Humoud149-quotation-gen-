@@ -2591,6 +2591,31 @@ var qrcode = function() {
   }
   .add-row-btn:hover{ background: var(--gold-light); }
   .addons-subtotal{ font-size: 13px; font-weight:700; color: var(--navy); }
+  #addonEmptyHint{ font-size: 12px; color: var(--muted); font-style: italic; }
+
+  .addon-picker-row{
+    display:flex;
+    gap: 10px;
+    align-items:stretch;
+    padding: 12px 14px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+  }
+  .addon-picker-row select{
+    flex:1;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    font-family:'Inter',sans-serif;
+    color: var(--ink);
+    background: #fff;
+  }
+  .addon-picker-row select:focus{ outline:none; border-color: var(--gold); }
+  .addon-picker-row .add-row-btn{ border-style: solid; flex-shrink:0; }
+  .addons input[readonly]{ color: var(--ink); }
 
   /* Terms box */
   .terms label{
@@ -2807,6 +2832,7 @@ var qrcode = function() {
   .sheet[dir="rtl"] .box .value-row{ flex-direction: row-reverse; justify-content: flex-end; }
   .sheet[dir="rtl"] .addons thead td{ text-align: right; }
   .sheet[dir="rtl"] .addons-footer{ flex-direction: row-reverse; }
+  .sheet[dir="rtl"] .addon-picker-row{ flex-direction: row-reverse; }
   .sheet[dir="rtl"] .sign-row{ direction: rtl; }
   .sheet[dir="rtl"] .footer{ flex-direction: row-reverse; }
   .sheet[dir="rtl"] .rm-btn{ margin-inline-start: 0; }
@@ -3364,6 +3390,10 @@ var qrcode = function() {
       </div>
 
       <div class="addons">
+        <div class="addon-picker-row no-print">
+          <select id="addonPicker"></select>
+          <button type="button" class="add-row-btn" onclick="addCatalogAddon()" data-i18n="btnAddAddon">+ Add</button>
+        </div>
         <table>
           <thead>
             <tr>
@@ -3372,21 +3402,10 @@ var qrcode = function() {
               <td class="rm"></td>
             </tr>
           </thead>
-          <tbody id="addonRows">
-            <tr>
-              <td><input type="text" data-i18n-ph="phAddonOffRoad" placeholder="e.g. Off-road cover" oninput="calc()" /></td>
-              <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
-              <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
-            </tr>
-            <tr>
-              <td><input type="text" data-i18n-ph="phAddonPA" placeholder="e.g. Personal accident cover" oninput="calc()" /></td>
-              <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
-              <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
-            </tr>
-          </tbody>
+          <tbody id="addonRows"></tbody>
         </table>
         <div class="addons-footer">
-          <button class="add-row-btn" onclick="addRow()" data-i18n="btnAddLine">+ Add line</button>
+          <span id="addonEmptyHint" data-i18n="addonEmptyHint">No add-ons added yet.</span>
           <div class="addons-subtotal"><span data-i18n="addonSubtotalLabel">Add-ons Subtotal: KWD</span> <span id="addonSubtotal" class="ltr-field" style="display:inline-block">0.000</span></div>
         </div>
       </div>
@@ -3554,9 +3573,11 @@ const TRANSLATIONS = {
     lblBasePremium: 'Base Premium',
     addonHeaderName: 'Add-on / Benefit',
     addonHeaderAmount: 'Amount (KWD)',
-    phAddonOffRoad: 'e.g. Off-road cover',
-    phAddonPA: 'e.g. Personal accident cover',
-    btnAddLine: '+ Add line',
+    phAddonPicker: 'Select an add-on…',
+    optCustomAddon: 'Custom / Other…',
+    phCustomAddonName: 'Add-on name',
+    btnAddAddon: '+ Add',
+    addonEmptyHint: 'No add-ons added yet.',
     addonSubtotalLabel: 'Add-ons Subtotal: KWD',
     lblTotalPremium: 'Total Premium',
     totalPremiumNote: '(editable — overrides auto-calculation)',
@@ -3653,9 +3674,11 @@ const TRANSLATIONS = {
     lblBasePremium: 'القسط الأساسي',
     addonHeaderName: 'الإضافات / المزايا',
     addonHeaderAmount: 'المبلغ (د.ك)',
-    phAddonOffRoad: 'مثال: تغطية القيادة الوعرة',
-    phAddonPA: 'مثال: تغطية الحوادث الشخصية',
-    btnAddLine: '+ إضافة بند',
+    phAddonPicker: 'اختر إضافة…',
+    optCustomAddon: 'إضافة مخصصة / أخرى…',
+    phCustomAddonName: 'اسم الإضافة',
+    btnAddAddon: '+ إضافة',
+    addonEmptyHint: 'لم تتم إضافة أي إضافات بعد.',
     addonSubtotalLabel: 'إجمالي الإضافات: د.ك',
     lblTotalPremium: 'إجمالي القسط',
     totalPremiumNote: '(قابل للتعديل — يتجاوز الحساب التلقائي)',
@@ -3716,6 +3739,120 @@ const TRANSLATIONS = {
   }
 };
 
+// ---------- Add-on catalog ----------
+const ADDON_CATALOG = [
+  { key:'replace15_small',    group:'grpReplace15', en:'Small',  ar:'فئة صغيرة',  type:'fixed', amount:35  },
+  { key:'replace15_medium',   group:'grpReplace15', en:'Medium', ar:'فئة متوسطة', type:'fixed', amount:45  },
+  { key:'replace15_large',    group:'grpReplace15', en:'Large',  ar:'فئة كبيرة',  type:'fixed', amount:55  },
+  { key:'replace15_luxury',   group:'grpReplace15', en:'Luxury', ar:'فئة فارهة',  type:'fixed', amount:200 },
+  { key:'replace20_small',    group:'grpReplace20', en:'Small',  ar:'فئة صغيرة',  type:'fixed', amount:40  },
+  { key:'replace20_medium',   group:'grpReplace20', en:'Medium', ar:'فئة متوسطة', type:'fixed', amount:50  },
+  { key:'replace20_large',    group:'grpReplace20', en:'Large',  ar:'فئة كبيرة',  type:'fixed', amount:70  },
+  { key:'replace20_luxury',   group:'grpReplace20', en:'Luxury', ar:'فئة فارهة',  type:'fixed', amount:260 },
+  { key:'naturalDisaster',    group:'grpOther', en:'Natural Disaster Coverage',        ar:'تغطية الكوارث الطبيعية',              type:'fixed', amount:60 },
+  { key:'warCoverage',        group:'grpOther', en:'War Coverage',                     ar:'تغطية الحروب',                        type:'percent', rate:0.005 },
+  { key:'geoExtension',       group:'grpOther', en:'Geographical Extension Coverage',  ar:'تغطية التمديد الجغرافي',              type:'percentMin', rate:0.01, min:100 },
+  { key:'personalAccidentA',  group:'grpOther', en:'Personal Accident Coverage',       ar:'تغطية الحوادث الشخصية',               type:'fixed', amount:30 },
+  { key:'roadside',           group:'grpOther', en:'Roadside Assistance',              ar:'خدمة المساعدة على الطريق',            type:'fixed', amount:5  },
+  { key:'waiverSubrogation',  group:'grpOther', en:'Waiver of Right of Subrogation',   ar:'عدم حق الرجوع',                       type:'fixed', amount:30 },
+  { key:'personalAccidentB',  group:'grpOther', en:'Personal Accidents',               ar:'الحوادث الشخصية',                     type:'fixed', amount:20 },
+  { key:'vehicleProtect500',  group:'grpOther', en:'Vehicle Protection — up to KWD 500',  ar:'تغطية حماية السيارة — لغاية 500 د.ك',    type:'fixed', amount:25 },
+  { key:'vehicleProtect1000', group:'grpOther', en:'Vehicle Protection — KWD 501–1,000',  ar:'تغطية حماية السيارة — 501-1,000 د.ك',    type:'fixed', amount:50 },
+];
+
+const ADDON_GROUP_LABELS = {
+  grpReplace15: { en: 'Replacement Car — 15 Days', ar: 'سيارة بديلة — 15 يوم' },
+  grpReplace20: { en: 'Replacement Car — 20 Days', ar: 'سيارة بديلة — 20 يوم' },
+  grpOther:     { en: 'Other Coverages', ar: 'تغطيات أخرى' },
+};
+
+function addonLabel(entry, lang){
+  const name = lang === 'ar' ? entry.ar : entry.en;
+  if (entry.group === 'grpReplace15' || entry.group === 'grpReplace20'){
+    const groupLabel = ADDON_GROUP_LABELS[entry.group][lang === 'ar' ? 'ar' : 'en'];
+    return groupLabel + ' — ' + name;
+  }
+  return name;
+}
+
+function addonPriceHint(entry, lang){
+  if (entry.type === 'fixed') return 'KWD ' + entry.amount.toFixed(3);
+  if (entry.type === 'percent') return (entry.rate * 100) + '%';
+  if (entry.type === 'percentMin') return (entry.rate * 100) + '% (min KWD ' + entry.min + ')';
+  return '';
+}
+
+function renderAddonPicker(){
+  const picker = document.getElementById('addonPicker');
+  if (!picker) return;
+  const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
+  const lang = selectedLanguage;
+
+  let html = `<option value="" disabled selected>${escapeAttr(dict.phAddonPicker)}</option>`;
+  ['grpReplace15','grpReplace20','grpOther'].forEach(groupKey => {
+    const groupLabel = ADDON_GROUP_LABELS[groupKey][lang === 'ar' ? 'ar' : 'en'];
+    html += `<optgroup label="${escapeAttr(groupLabel)}">`;
+    ADDON_CATALOG.filter(a => a.group === groupKey).forEach(entry => {
+      const name = lang === 'ar' ? entry.ar : entry.en;
+      html += `<option value="${entry.key}">${escapeAttr(name)} — ${escapeAttr(addonPriceHint(entry, lang))}</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  html += `<option value="custom">${escapeAttr(dict.optCustomAddon)}</option>`;
+  picker.innerHTML = html;
+}
+
+function updateAddonEmptyHint(){
+  const tbody = document.getElementById('addonRows');
+  const hint = document.getElementById('addonEmptyHint');
+  if (tbody && hint) hint.style.display = tbody.children.length ? 'none' : '';
+}
+
+function addCatalogAddon(){
+  const picker = document.getElementById('addonPicker');
+  const key = picker.value;
+  if (!key) return;
+
+  if (key === 'custom'){
+    addCustomAddonRow();
+  } else {
+    const entry = ADDON_CATALOG.find(a => a.key === key);
+    if (!entry) return;
+    const sumInsured = parseFloat(document.getElementById('sumInsured').value) || 0;
+    let amount = 0;
+    if (entry.type === 'fixed') amount = entry.amount;
+    else if (entry.type === 'percent') amount = sumInsured * entry.rate;
+    else if (entry.type === 'percentMin') amount = Math.max(sumInsured * entry.rate, entry.min);
+
+    const tbody = document.getElementById('addonRows');
+    const tr = document.createElement('tr');
+    tr.dataset.addonKey = key;
+    const label = addonLabel(entry, selectedLanguage);
+    tr.innerHTML = `
+      <td><input type="text" value="${escapeAttr(label)}" readonly /></td>
+      <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" value="${amount.toFixed(3)}" oninput="calc()" /></td>
+      <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
+    `;
+    tbody.appendChild(tr);
+    updateAddonEmptyHint();
+    calc();
+  }
+  picker.value = '';
+}
+
+function addCustomAddonRow(){
+  const tbody = document.getElementById('addonRows');
+  const tr = document.createElement('tr');
+  const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
+  tr.innerHTML = `
+    <td><input type="text" placeholder="${escapeAttr(dict.phCustomAddonName)}" oninput="calc()" /></td>
+    <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
+    <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
+  `;
+  tbody.appendChild(tr);
+  updateAddonEmptyHint();
+}
+
 function applyLanguage(lang){
   selectedLanguage = lang;
   const dict = TRANSLATIONS[lang] || TRANSLATIONS.en;
@@ -3732,6 +3869,17 @@ function applyLanguage(lang){
   const sheet = document.querySelector('.sheet');
   sheet.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   sheet.classList.toggle('lang-ar', lang === 'ar');
+
+  renderAddonPicker();
+  // Re-translate any catalog-driven add-on rows already on the form
+  document.querySelectorAll('#addonRows tr').forEach(tr => {
+    const key = tr.dataset.addonKey;
+    if (!key) return;
+    const entry = ADDON_CATALOG.find(a => a.key === key);
+    if (!entry) return;
+    const nameInput = tr.querySelector('td:first-child input');
+    if (nameInput) nameInput.value = addonLabel(entry, lang);
+  });
 }
 
 function setDashboardLanguage(lang){
@@ -4008,7 +4156,7 @@ function collectFormData(){
     const nameEl = tr.querySelector('td:first-child input');
     const amtEl = tr.querySelector('.amt');
     if (nameEl && (nameEl.value || (amtEl && amtEl.value))){
-      addons.push({ name: nameEl.value, amount: amtEl ? amtEl.value : '' });
+      addons.push({ name: nameEl.value, amount: amtEl ? amtEl.value : '', key: tr.dataset.addonKey || null });
     }
   });
 
@@ -4084,15 +4232,18 @@ function populateFormData(d){
 
   const tbody = document.getElementById('addonRows');
   tbody.innerHTML = '';
-  const addons = (d.addons && d.addons.length) ? d.addons : [{name:'',amount:''},{name:'',amount:''}];
+  const addons = (d.addons && d.addons.length) ? d.addons : [];
   addons.forEach(a => {
     const tr = document.createElement('tr');
+    if (a.key) tr.dataset.addonKey = a.key;
+    const readonlyAttr = a.key ? 'readonly' : '';
     tr.innerHTML = `
-      <td><input type="text" placeholder="Add-on name" value="${escapeAttr(a.name || '')}" oninput="calc()" /></td>
+      <td><input type="text" placeholder="Add-on name" value="${escapeAttr(a.name || '')}" oninput="calc()" ${readonlyAttr} /></td>
       <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" value="${escapeAttr(a.amount || '')}" oninput="calc()" /></td>
       <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>`;
     tbody.appendChild(tr);
   });
+  updateAddonEmptyHint();
 
   if (d.terms){
     document.getElementById('terms').innerText = d.terms;
@@ -4124,17 +4275,9 @@ function resetForm(){
   const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
 
   const tbody = document.getElementById('addonRows');
-  tbody.innerHTML = `
-    <tr>
-      <td><input type="text" placeholder="${escapeAttr(dict.phAddonOffRoad)}" oninput="calc()" /></td>
-      <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
-      <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
-    </tr>
-    <tr>
-      <td><input type="text" placeholder="${escapeAttr(dict.phAddonPA)}" oninput="calc()" /></td>
-      <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
-      <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
-    </tr>`;
+  tbody.innerHTML = '';
+  updateAddonEmptyHint();
+  renderAddonPicker();
 
   document.getElementById('terms').innerText = dict.defaultTerms;
 
@@ -4222,18 +4365,18 @@ function calc(){
   const basePremium = sumInsured * (rate/100);
   document.getElementById('basePremium').value = basePremium.toFixed(3);
 
-  // Geographical Extension Coverage auto-prices itself: 1% of sum insured,
-  // minimum KWD 100 — recalculated live whenever the name matches or the
-  // sum insured changes, so it's never out of sync.
+  // Percentage-based catalog add-ons (War, Geographical Extension) stay in
+  // sync with Sum Insured automatically. Fixed-price and custom add-ons are
+  // left exactly as entered — they're free to be edited/overridden.
   document.querySelectorAll('#addonRows tr').forEach(tr => {
-    const nameInput = tr.querySelector('td:first-child input');
+    const key = tr.dataset.addonKey;
+    if (!key) return;
+    const entry = ADDON_CATALOG.find(a => a.key === key);
+    if (!entry || entry.type === 'fixed') return;
     const amtInput = tr.querySelector('.amt');
-    if (!nameInput || !amtInput) return;
-    const name = (nameInput.value || '').trim();
-    const isGeographical = /geographic/i.test(name) || name.includes('الجغرافي');
-    if (isGeographical) {
-      amtInput.value = Math.max(sumInsured * 0.01, 100).toFixed(3);
-    }
+    if (!amtInput) return;
+    if (entry.type === 'percent') amtInput.value = (sumInsured * entry.rate).toFixed(3);
+    else if (entry.type === 'percentMin') amtInput.value = Math.max(sumInsured * entry.rate, entry.min).toFixed(3);
   });
 
   let addonTotal = 0;
@@ -4250,20 +4393,10 @@ function calc(){
   }
 }
 
-function addRow(){
-  const tbody = document.getElementById('addonRows');
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td><input type="text" placeholder="Add-on name" oninput="calc()" /></td>
-    <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
-    <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
-  `;
-  tbody.appendChild(tr);
-}
-
 function removeRow(btn){
   const tr = btn.closest('tr');
   tr.remove();
+  updateAddonEmptyHint();
   calc();
 }
 </script>
