@@ -3358,7 +3358,7 @@ var qrcode = function() {
           <label data-i18n="lblSupervisionFee">Supervision &amp; Issuance Fees</label>
           <div class="value-row">
             <span class="prefix">KWD</span>
-            <input type="number" id="supervisionFee" class="ltr-field" placeholder="0.000" step="0.001" />
+            <input type="number" id="supervisionFee" class="ltr-field" placeholder="0.000" step="0.001" oninput="calc()" />
           </div>
         </div>
       </div>
@@ -3374,12 +3374,12 @@ var qrcode = function() {
           </thead>
           <tbody id="addonRows">
             <tr>
-              <td><input type="text" data-i18n-ph="phAddonOffRoad" placeholder="e.g. Off-road cover" /></td>
+              <td><input type="text" data-i18n-ph="phAddonOffRoad" placeholder="e.g. Off-road cover" oninput="calc()" /></td>
               <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
               <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
             </tr>
             <tr>
-              <td><input type="text" data-i18n-ph="phAddonPA" placeholder="e.g. Personal accident cover" /></td>
+              <td><input type="text" data-i18n-ph="phAddonPA" placeholder="e.g. Personal accident cover" oninput="calc()" /></td>
               <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
               <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
             </tr>
@@ -3398,7 +3398,7 @@ var qrcode = function() {
             <span class="prefix">KWD</span>
             <input type="text" id="totalPremium" class="ltr-field" value="0.000" style="font-size:26px;" oninput="markManualTotal()" />
           </div>
-          <button type="button" class="mini-btn recalc-btn no-print" onclick="recalcTotal()" data-i18n="btnRecalc">&#8635; Recalculate from Sum Insured + Add-ons</button>
+          <button type="button" class="mini-btn recalc-btn no-print" onclick="recalcTotal()" data-i18n="btnRecalc">&#8635; Recalculate from Sum Insured + Add-ons + Fees</button>
         </div>
       </div>
 
@@ -3560,7 +3560,7 @@ const TRANSLATIONS = {
     addonSubtotalLabel: 'Add-ons Subtotal: KWD',
     lblTotalPremium: 'Total Premium',
     totalPremiumNote: '(editable — overrides auto-calculation)',
-    btnRecalc: '↺ Recalculate from Sum Insured + Add-ons',
+    btnRecalc: '↺ Recalculate from Sum Insured + Add-ons + Fees',
     lblRepairLocation: 'Repair Location',
     phSelect: 'Select...',
     optInsideAgency: 'Inside Agency',
@@ -3604,7 +3604,16 @@ const TRANSLATIONS = {
 2. Premium is subject to inspection of the vehicle prior to policy issuance.
 3. Coverage is not bound until premium payment is confirmed and policy is issued.
 4. Rates shown are exclusive of any applicable government fees.
-5. GIG reserves the right to amend terms based on risk assessment findings.`
+5. GIG reserves the right to amend terms based on risk assessment findings.
+6. Repair inside the agency.
+7. No deductible.
+8. No depreciation on spare parts.
+9. Except as stated in Clauses 7 and 10 of the Exclusions in the Terms & Conditions — Unknown accident: 10% of the vehicle's value, up to a maximum of KWD 1,200; any amount above this is borne by the insured at 50% of the total repair cost.
+10. Front windshield: covered once inside the agency only with no deductible; the second time, a 50% deductible applies (provided the current windshield is original — otherwise replacement will be outside the agency).
+11. Waiver of right of subrogation.
+12. Geographical coverage effective from 6/1/2026 for a period of one month.
+13. The insured bears 25% of the total repair cost in the event of an accident in a GCC country, whether the accident is known or unknown.
+14. Replacement car — large category (3500–5300 cc), 15 days, Abraj Company.`
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات',
@@ -3650,7 +3659,7 @@ const TRANSLATIONS = {
     addonSubtotalLabel: 'إجمالي الإضافات: د.ك',
     lblTotalPremium: 'إجمالي القسط',
     totalPremiumNote: '(قابل للتعديل — يتجاوز الحساب التلقائي)',
-    btnRecalc: '↺ إعادة الحساب من مبلغ التأمين + الإضافات',
+    btnRecalc: '↺ إعادة الحساب من مبلغ التأمين + الإضافات + الرسوم',
     lblRepairLocation: 'مكان التصليح',
     phSelect: 'اختر...',
     optInsideAgency: 'داخل الوكالة',
@@ -3694,7 +3703,16 @@ const TRANSLATIONS = {
 2. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
 3. لا تُعتبر التغطية سارية حتى تأكيد سداد القسط وإصدار الوثيقة.
 4. الأسعار المعروضة لا تشمل أي رسوم حكومية مطبقة.
-5. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.`
+5. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
+6. تصليح داخل الوكالة.
+7. بدون تحمل.
+8. بدون استهلاك على قطع الغيار.
+9. باستثناء ما ورد في البند السابع والعاشر من الاستثناءات الواردة في الشروط والأحكام، المجهول: 10% من قيمة المركبة بحد أقصى 1200 د.ك، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من إجمالي التصليح.
+10. الزجاج الأمامي: مغطى مرة واحدة داخل الوكالة فقط بدون تحمل، والمرة الثانية بنسبة تحمل 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).
+11. عدم حق الرجوع.
+12. التغطية الجغرافية ابتداءً من تاريخ 6/1/2026 ولمدة شهر واحد.
+13. يتحمل المؤمن له 25% من إجمالي التصليح في حال وجود حادث في دول مجلس التعاون الخليجي، سواء كان الحادث معلومًا أو مجهولاً.
+14. سيارة بديلة فئة كبيرة (3500 - 5300 سي سي) لمدة 15 يومًا - شركة أبراج.`
   }
 };
 
@@ -4070,7 +4088,7 @@ function populateFormData(d){
   addons.forEach(a => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td><input type="text" placeholder="Add-on name" value="${escapeAttr(a.name || '')}" /></td>
+      <td><input type="text" placeholder="Add-on name" value="${escapeAttr(a.name || '')}" oninput="calc()" /></td>
       <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" value="${escapeAttr(a.amount || '')}" oninput="calc()" /></td>
       <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>`;
     tbody.appendChild(tr);
@@ -4108,12 +4126,12 @@ function resetForm(){
   const tbody = document.getElementById('addonRows');
   tbody.innerHTML = `
     <tr>
-      <td><input type="text" placeholder="${escapeAttr(dict.phAddonOffRoad)}" /></td>
+      <td><input type="text" placeholder="${escapeAttr(dict.phAddonOffRoad)}" oninput="calc()" /></td>
       <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
       <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
     </tr>
     <tr>
-      <td><input type="text" placeholder="${escapeAttr(dict.phAddonPA)}" /></td>
+      <td><input type="text" placeholder="${escapeAttr(dict.phAddonPA)}" oninput="calc()" /></td>
       <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
       <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
     </tr>`;
@@ -4204,14 +4222,30 @@ function calc(){
   const basePremium = sumInsured * (rate/100);
   document.getElementById('basePremium').value = basePremium.toFixed(3);
 
+  // Geographical Extension Coverage auto-prices itself: 1% of sum insured,
+  // minimum KWD 100 — recalculated live whenever the name matches or the
+  // sum insured changes, so it's never out of sync.
+  document.querySelectorAll('#addonRows tr').forEach(tr => {
+    const nameInput = tr.querySelector('td:first-child input');
+    const amtInput = tr.querySelector('.amt');
+    if (!nameInput || !amtInput) return;
+    const name = (nameInput.value || '').trim();
+    const isGeographical = /geographic/i.test(name) || name.includes('الجغرافي');
+    if (isGeographical) {
+      amtInput.value = Math.max(sumInsured * 0.01, 100).toFixed(3);
+    }
+  });
+
   let addonTotal = 0;
   document.querySelectorAll('.amt').forEach(el => {
     addonTotal += parseFloat(el.value) || 0;
   });
   document.getElementById('addonSubtotal').innerText = addonTotal.toFixed(3);
 
+  const supervisionFee = parseFloat(document.getElementById('supervisionFee').value) || 0;
+
   if (!totalManuallyEdited) {
-    const total = basePremium + addonTotal;
+    const total = basePremium + addonTotal + supervisionFee;
     document.getElementById('totalPremium').value = total.toFixed(3);
   }
 }
@@ -4220,7 +4254,7 @@ function addRow(){
   const tbody = document.getElementById('addonRows');
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td><input type="text" placeholder="Add-on name" /></td>
+    <td><input type="text" placeholder="Add-on name" oninput="calc()" /></td>
     <td class="amt-col"><input type="number" class="amt ltr-field" step="0.001" placeholder="0.000" oninput="calc()" /></td>
     <td class="rm"><button class="rm-btn" onclick="removeRow(this)">&times;</button></td>
   `;
