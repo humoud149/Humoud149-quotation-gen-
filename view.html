@@ -48,6 +48,8 @@
   .sheet[dir="rtl"] .box label,
   .sheet[dir="rtl"] label{ font-family: 'Cairo', sans-serif; }
   .sheet[dir="rtl"] .header{ flex-direction: row-reverse; }
+  .sheet[dir="rtl"] .meta div{ border-right: none; border-left: 1px solid var(--line); }
+  .sheet[dir="rtl"] .meta div:nth-child(2n){ border-left: none; }
   .sheet[dir="rtl"] .title-block{ text-align: left; }
   .sheet[dir="rtl"] .box .value-row{ flex-direction: row-reverse; justify-content: flex-end; }
   .sheet[dir="rtl"] .addons thead td{ text-align: right; }
@@ -88,12 +90,13 @@
 
   .meta{
     display:grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     background: var(--cream);
     border-bottom: 1px solid var(--line);
   }
-  .meta div{ padding: 12px 18px; border-right: 1px solid var(--line); }
-  .meta div:last-child{ border-right:none; }
+  .meta div{ padding: 12px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
+  .meta div:nth-child(2n){ border-right:none; }
+  .meta div:nth-last-child(-n+2){ border-bottom:none; }
   .meta label{
     display:block;
     font-size: 9.5px;
@@ -102,7 +105,7 @@
     color: var(--muted);
     margin-bottom: 4px;
   }
-  .meta .val{ font-size: 13px; font-weight:600; color: var(--ink); }
+  .meta .val{ font-size: 13px; font-weight:600; color: var(--ink); overflow-wrap: break-word; word-break: break-word; }
 
   .body-pad{ padding: 34px 44px 44px; }
 
@@ -260,6 +263,8 @@
     .box, .addons, .terms-box, .meta, .grid, .coverage-grid, table, tr, .sign-row, .header{
       page-break-inside: avoid; break-inside: avoid;
     }
+    .section-title, .at-group-title{ page-break-after: avoid; break-after: avoid; }
+    .at-block{ page-break-inside: avoid; break-inside: avoid; }
     .ref-table, .ref-table tbody{ page-break-inside: auto !important; break-inside: auto !important; }
     .ref-table tr{ page-break-inside: avoid; break-inside: avoid; }
   }
