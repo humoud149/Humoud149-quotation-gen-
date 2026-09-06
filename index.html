@@ -3379,6 +3379,7 @@ var qrcode = function() {
       <div class="dash-top">
         <h1>GIG Quotation Tool</h1>
         <div class="who">
+          <a id="adminDashLink" href="admin.html" class="back-to-dash" style="display:none; margin-right:10px;">&#128202; Manager Dashboard</a>
           <span id="dashSignedInAs"></span>
           &nbsp;&middot;&nbsp;
           <button type="button" class="dash-signout" onclick="doLogout()">Sign out</button>
@@ -3408,7 +3409,7 @@ var qrcode = function() {
 
       <div class="dash-card">
         <h2>Completed Quotations</h2>
-        <p class="sub">Quotations that have been saved as a PDF, across the whole team</p>
+        <p class="sub">Quotations that have been saved as a PDF</p>
         <div id="quoteListWrap">
           <div class="dash-empty">Loading…</div>
         </div>
@@ -4081,6 +4082,12 @@ function onSignedIn(session){
   document.getElementById('signedInAs').textContent = 'Signed in as ' + currentUserEmail;
   document.getElementById('dashSignedInAs').textContent = 'Signed in as ' + currentUserEmail;
   showDashboard();
+
+  supabaseClient.rpc('is_admin', { uid: session.user.id }).then(({ data, error }) => {
+    if (!error && data){
+      document.getElementById('adminDashLink').style.display = 'inline';
+    }
+  });
 }
 
 // Allow pressing Enter in the password field to submit
