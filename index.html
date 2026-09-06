@@ -3750,14 +3750,14 @@ const TRANSLATIONS = {
     atLabelRimsGlass: 'Rims, Tires, Glass & Cameras',
     atLabelTotalLoss: 'Total Loss Depreciation',
     atKnownDefinitionDefault: 'Accidents where the other party is known, as stated in the police report.',
-    atKnownDeductibleDefault: '1% of the vehicle value, payable once per claim opened.',
+    atKnownDeductibleDefault: '1% of the vehicle value, on the first claim only, paid once.',
     atKnownDepreciationDefault: 'No depreciation',
     atKnownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
     atKnownRimsGlassDefault: 'No deductible',
     atKnownTotalLossDefault: '50%',
     atUnknownDefinitionDefault: 'All accidents where there is no second party, as stated in the police report.',
     atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,200 per accident. Any amount above this is borne by the insured at 50% of the total. Limited to incidents occurring while the vehicle is parked and unoccupied.',
-    atUnknownDeductibleDefault: '1% of the vehicle value, payable once per claim opened.',
+    atUnknownDeductibleDefault: '1% of the vehicle value, on the first claim only, paid once.',
     atUnknownDepreciationDefault: 'No depreciation on replaced spare parts for the first five years from the vehicle\u2019s manufacture date.',
     atUnknownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
     atUnknownRimsGlassDefault: 'The insured bears 50% of the total repair cost.',
@@ -3780,14 +3780,10 @@ const TRANSLATIONS = {
 4. Rates shown are exclusive of any applicable government fees.
 5. GIG reserves the right to amend terms based on risk assessment findings.
 6. Repair inside the agency.
-7. No deductible.
+7. Deductible: 1% of the vehicle value, on the first claim only, paid once.
 8. No depreciation on spare parts.
-9. Except as stated in Clauses 7 and 10 of the Exclusions in the Terms & Conditions — Unknown accident: 10% of the vehicle's value, up to a maximum of KWD 1,200; any amount above this is borne by the insured at 50% of the total repair cost.
-10. Front windshield: covered once inside the agency only with no deductible; the second time, a 50% deductible applies (provided the current windshield is original — otherwise replacement will be outside the agency).
-11. Waiver of right of subrogation.
-12. Geographical coverage effective from 6/1/2026 for a period of one month.
-13. The insured bears 25% of the total repair cost in the event of an accident in a GCC country, whether the accident is known or unknown.
-14. Replacement car — large category (3500–5300 cc), 15 days, Abraj Company.`
+9. Front windshield: replaced once after paying the deductible amount; the second time, the insured bears 50% of the total replacement cost.
+10. Waiver of right of subrogation.`
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات',
@@ -3853,14 +3849,14 @@ const TRANSLATIONS = {
     atLabelRimsGlass: 'الرنجات والإطارات والزجاج والكاميرات',
     atLabelTotalLoss: 'نسبة استهلاك الخسارة الكلية',
     atKnownDefinitionDefault: 'الحوادث التي يكون بها الطرف الثاني معلوم كما هو مذكور بتقرير المخفر.',
-    atKnownDeductibleDefault: '1% من قيمة المركبة، تُدفع مرة واحدة عند فتح المطالبة.',
+    atKnownDeductibleDefault: '1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.',
     atKnownDepreciationDefault: 'بدون استهلاك',
     atKnownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
     atKnownRimsGlassDefault: 'بدون تحمل',
     atKnownTotalLossDefault: '50%',
     atUnknownDefinitionDefault: 'جميع الحوادث التي لا يوجد بها طرف ثاني كما هو بتقرير المخفر.',
     atUnknownCoverageDefault: '10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.',
-    atUnknownDeductibleDefault: '1% من قيمة المركبة، تُدفع مرة واحدة عند فتح المطالبة.',
+    atUnknownDeductibleDefault: '1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.',
     atUnknownDepreciationDefault: 'بدون استهلاك على قطع الغيار المستبدلة لأول خمس سنوات من صنع المركبة.',
     atUnknownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
     atUnknownRimsGlassDefault: 'يتحمل المؤمن له 50% من إجمالي التصليح.',
@@ -3883,14 +3879,10 @@ const TRANSLATIONS = {
 4. الأسعار المعروضة لا تشمل أي رسوم حكومية مطبقة.
 5. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
 6. تصليح داخل الوكالة.
-7. بدون تحمل.
+7. التحمل: 1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.
 8. بدون استهلاك على قطع الغيار.
-9. باستثناء ما ورد في البند السابع والعاشر من الاستثناءات الواردة في الشروط والأحكام، المجهول: 10% من قيمة المركبة بحد أقصى 1200 د.ك، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من إجمالي التصليح.
-10. الزجاج الأمامي: مغطى مرة واحدة داخل الوكالة فقط بدون تحمل، والمرة الثانية بنسبة تحمل 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).
-11. عدم حق الرجوع.
-12. التغطية الجغرافية ابتداءً من تاريخ 6/1/2026 ولمدة شهر واحد.
-13. يتحمل المؤمن له 25% من إجمالي التصليح في حال وجود حادث في دول مجلس التعاون الخليجي، سواء كان الحادث معلومًا أو مجهولاً.
-14. سيارة بديلة فئة كبيرة (3500 - 5300 سي سي) لمدة 15 يومًا - شركة أبراج.`
+9. الزجاج الامامي: تبديل الزجاج الامامي اول مره بعد دفع مبلغ التحمل، ثاني مره يتحمل المؤمن له 50% من اجمالي التبديل.
+10. مع عدم حق الرجوع.`
   }
 };
 
