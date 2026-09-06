@@ -3374,6 +3374,17 @@ var qrcode = function() {
     </div>
   </div>
 
+  <div id="setPasswordOverlay" class="hidden" style="position:fixed; inset:0; background:linear-gradient(135deg, #0b1339 0%, #141c4d 100%); display:flex; align-items:center; justify-content:center; z-index:1001; padding:20px;">
+    <div class="login-box">
+      <h2>Welcome — set your password</h2>
+      <p class="sub">Choose a password for your account. You'll use this to sign in from now on.</p>
+      <input type="password" id="newPassword" placeholder="New password" autocomplete="new-password" />
+      <input type="password" id="confirmPassword" placeholder="Confirm password" autocomplete="new-password" />
+      <button type="button" id="setPasswordBtn" onclick="submitNewPassword()">Set Password &amp; Continue</button>
+      <div id="setPasswordError" style="color:#b04a4a; font-size:12px; margin-top:12px; min-height:14px;"></div>
+    </div>
+  </div>
+
   <div id="dashboardOverlay" class="hidden">
     <div class="dash-wrap">
       <div class="dash-top">
@@ -4111,13 +4122,75 @@ function populateYearDropdown(){
   }
 }
 
-// Check for an existing session on page load
-(async () => {
-  const { data } = await supabaseClient.auth.getSession();
-  if (data.session){
-    onSignedIn(data.session);
+// ---------- Invite / password recovery handling ----------
+// When someone clicks an "invite" or "reset password" link, Supabase
+// redirects here with a token in the URL and includes type=invite or
+// type=recovery. In that case we must NOT drop them straight into the
+// dashboard — they don't have a password yet (or are resetting it) —
+// so we intercept and show a "set your password" screen instead.
+function getHashParam(name){
+  const hash = window.location.hash.startsWith('#') ? window.location.hash.substring(1) : window.location.hash;
+  return new URLSearchParams(hash).get(name);
+}
+
+const authLinkType = getHashParam('type'); // 'invite', 'recovery', 'signup', etc. or null
+let pendingPasswordSession = null;
+
+if (authLinkType === 'invite' || authLinkType === 'recovery'){
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    if (session && (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY')){
+      pendingPasswordSession = session;
+      document.getElementById('loginOverlay').classList.add('hidden');
+      document.getElementById('setPasswordOverlay').classList.remove('hidden');
+    }
+  });
+} else {
+  // Normal flow: check for an existing session on page load
+  (async () => {
+    const { data } = await supabaseClient.auth.getSession();
+    if (data.session){
+      onSignedIn(data.session);
+    }
+  })();
+}
+
+async function submitNewPassword(){
+  const pw1 = document.getElementById('newPassword').value;
+  const pw2 = document.getElementById('confirmPassword').value;
+  const errEl = document.getElementById('setPasswordError');
+  errEl.textContent = '';
+
+  if (pw1.length < 6){
+    errEl.textContent = 'Password must be at least 6 characters.';
+    return;
   }
-})();
+  if (pw1 !== pw2){
+    errEl.textContent = 'Passwords do not match.';
+    return;
+  }
+
+  const btn = document.getElementById('setPasswordBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const { error } = await supabaseClient.auth.updateUser({ password: pw1 });
+
+  btn.disabled = false;
+  btn.textContent = 'Set Password & Continue';
+
+  if (error){
+    errEl.textContent = 'Could not set password — try again.';
+    console.error(error);
+    return;
+  }
+
+  // Clean the token out of the address bar, then proceed in as normal.
+  history.replaceState(null, '', window.location.pathname);
+  document.getElementById('setPasswordOverlay').classList.add('hidden');
+
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) onSignedIn(session);
+}
 
 // ---------- Dashboard ----------
 function showDashboard(){
