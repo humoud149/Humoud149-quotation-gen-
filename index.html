@@ -3750,14 +3750,14 @@ const TRANSLATIONS = {
     atLabelRimsGlass: 'Rims, Tires, Glass & Cameras',
     atLabelTotalLoss: 'Total Loss Depreciation',
     atKnownDefinitionDefault: 'Accidents where the other party is known, as stated in the police report.',
-    atKnownDeductibleDefault: 'No deductible',
+    atKnownDeductibleDefault: '1% of the vehicle value, payable once per claim opened.',
     atKnownDepreciationDefault: 'No depreciation',
     atKnownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
     atKnownRimsGlassDefault: 'No deductible',
     atKnownTotalLossDefault: '50%',
     atUnknownDefinitionDefault: 'All accidents where there is no second party, as stated in the police report.',
     atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,200 per accident. Any amount above this is borne by the insured at 50% of the total. Limited to incidents occurring while the vehicle is parked and unoccupied.',
-    atUnknownDeductibleDefault: 'No deductible',
+    atUnknownDeductibleDefault: '1% of the vehicle value, payable once per claim opened.',
     atUnknownDepreciationDefault: 'No depreciation on replaced spare parts for the first five years from the vehicle\u2019s manufacture date.',
     atUnknownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
     atUnknownRimsGlassDefault: 'The insured bears 50% of the total repair cost.',
@@ -3853,14 +3853,14 @@ const TRANSLATIONS = {
     atLabelRimsGlass: 'الرنجات والإطارات والزجاج والكاميرات',
     atLabelTotalLoss: 'نسبة استهلاك الخسارة الكلية',
     atKnownDefinitionDefault: 'الحوادث التي يكون بها الطرف الثاني معلوم كما هو مذكور بتقرير المخفر.',
-    atKnownDeductibleDefault: 'بدون تحمل',
+    atKnownDeductibleDefault: '1% من قيمة المركبة، تُدفع مرة واحدة عند فتح المطالبة.',
     atKnownDepreciationDefault: 'بدون استهلاك',
     atKnownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
     atKnownRimsGlassDefault: 'بدون تحمل',
     atKnownTotalLossDefault: '50%',
     atUnknownDefinitionDefault: 'جميع الحوادث التي لا يوجد بها طرف ثاني كما هو بتقرير المخفر.',
     atUnknownCoverageDefault: '10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.',
-    atUnknownDeductibleDefault: 'بدون تحمل',
+    atUnknownDeductibleDefault: '1% من قيمة المركبة، تُدفع مرة واحدة عند فتح المطالبة.',
     atUnknownDepreciationDefault: 'بدون استهلاك على قطع الغيار المستبدلة لأول خمس سنوات من صنع المركبة.',
     atUnknownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
     atUnknownRimsGlassDefault: 'يتحمل المؤمن له 50% من إجمالي التصليح.',
@@ -4272,6 +4272,20 @@ function openQuotationForm(type){
 
   const underwriterField = document.getElementById('underwriter');
   if (underwriterField && !underwriterField.value) underwriterField.value = currentUserEmail;
+
+  // Individual quotations use a fixed rate for the current event.
+  // Corporate quotations remain fully editable, as before.
+  const rateInput = document.getElementById('rate');
+  if (rateInput){
+    if (type === 'individual'){
+      if (!rateInput.value) rateInput.value = '2.5';
+      rateInput.readOnly = true;
+      rateInput.classList.add('locked-field');
+    } else {
+      rateInput.readOnly = false;
+      rateInput.classList.remove('locked-field');
+    }
+  }
 
   calc();
   renderQrCode();
