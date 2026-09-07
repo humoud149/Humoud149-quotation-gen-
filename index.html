@@ -2761,6 +2761,17 @@ var qrcode = function() {
     padding: 20px;
   }
   #loginOverlay.hidden{ display:none; }
+  #setPasswordOverlay{
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 100%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 1001;
+    padding: 20px;
+  }
+  #setPasswordOverlay.hidden{ display:none; }
   .login-box{
     background:#fff;
     border-radius: 8px;
@@ -3401,7 +3412,7 @@ var qrcode = function() {
     </div>
   </div>
 
-  <div id="setPasswordOverlay" class="hidden" style="position:fixed; inset:0; background:linear-gradient(135deg, #0b1339 0%, #141c4d 100%); display:flex; align-items:center; justify-content:center; z-index:1001; padding:20px;">
+  <div id="setPasswordOverlay" class="hidden">
     <div class="login-box">
       <h2>Welcome — set your password</h2>
       <p class="sub">Choose a password for your account. You'll use this to sign in from now on.</p>
@@ -4273,8 +4284,17 @@ async function submitNewPassword(){
   btn.textContent = 'Set Password & Continue';
 
   if (error){
-    errEl.textContent = 'Could not set password — try again.';
     console.error(error);
+    const msg = (error.message || '').toLowerCase();
+    if (msg.includes('session missing') || msg.includes('session') ){
+      errEl.innerHTML = 'This link has already been used and has expired. <button type="button" class="forgot-link" onclick="backToLoginScreen()" style="display:inline;margin:0 0 0 4px;">Go to the sign-in page</button> and use "Forgot password?" to get a fresh link.';
+    } else if (msg.includes('should be different')){
+      errEl.innerHTML = 'You already set this password. <button type="button" class="forgot-link" onclick="backToLoginScreen()" style="display:inline;margin:0 0 0 4px;">Go sign in</button> with it instead.';
+    } else if (msg.includes('at least') || msg.includes('character')){
+      errEl.textContent = 'Password is too short — use at least 6 characters.';
+    } else {
+      errEl.textContent = 'Could not set password — please try again.';
+    }
     return;
   }
 
