@@ -2813,6 +2813,26 @@ var qrcode = function() {
     margin-top: 12px;
     min-height: 14px;
   }
+  .forgot-link{
+    background:none;
+    border:none;
+    color: var(--muted);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor:pointer;
+    margin-top: 14px;
+    padding: 0;
+  }
+  .forgot-link:hover{ color: var(--navy); }
+  #forgotPanel.hidden{ display:none; }
+  #forgotPanel{ margin-top: 6px; text-align:left; }
+  #forgotMsg{
+    font-size: 12px;
+    margin-top: 10px;
+    min-height: 14px;
+  }
+  #forgotMsg.success{ color: #2e7d47; }
+  #forgotMsg.error{ color: #b04a4a; }
 
   .signed-in-bar{
     max-width: 900px;
@@ -3371,6 +3391,13 @@ var qrcode = function() {
       <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password" />
       <button type="button" id="loginBtn" onclick="doLogin()">Sign In</button>
       <div id="loginError"></div>
+      <button type="button" class="forgot-link" onclick="toggleForgotPassword()">Forgot password?</button>
+      <div id="forgotPanel" class="hidden">
+        <p class="sub" style="margin-top:14px;">Enter your email and we'll send you a reset link.</p>
+        <input type="email" id="forgotEmail" placeholder="you@gig.com" autocomplete="username" />
+        <button type="button" id="forgotBtn" onclick="sendPasswordReset()">Send Reset Link</button>
+        <div id="forgotMsg"></div>
+      </div>
     </div>
   </div>
 
@@ -3382,6 +3409,7 @@ var qrcode = function() {
       <input type="password" id="confirmPassword" placeholder="Confirm password" autocomplete="new-password" />
       <button type="button" id="setPasswordBtn" onclick="submitNewPassword()">Set Password &amp; Continue</button>
       <div id="setPasswordError" style="color:#b04a4a; font-size:12px; margin-top:12px; min-height:14px;"></div>
+      <button type="button" class="forgot-link" onclick="backToLoginScreen()">&larr; Back to sign in</button>
     </div>
   </div>
 
@@ -3692,6 +3720,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUserEmail = null;
+let currentUserIsAdmin = false;
 let selectedQuoteType = null;     // 'individual' or 'corporate'
 let currentQuotationId = null;    // uuid of the draft/quotation row being edited
 let dashboardLanguage = 'en';     // language chosen on the dashboard before starting a quotation
@@ -4051,6 +4080,51 @@ function setDashboardLanguage(lang){
 
 
 // ---------- Auth ----------
+function toggleForgotPassword(){
+  const panel = document.getElementById('forgotPanel');
+  const isHidden = panel.classList.contains('hidden');
+  panel.classList.toggle('hidden');
+  if (isHidden){
+    // Carry over whatever they already typed in the main email field
+    const mainEmail = document.getElementById('loginEmail').value;
+    if (mainEmail) document.getElementById('forgotEmail').value = mainEmail;
+  }
+}
+
+async function sendPasswordReset(){
+  const email = document.getElementById('forgotEmail').value.trim();
+  const msgEl = document.getElementById('forgotMsg');
+  msgEl.textContent = '';
+  msgEl.className = '';
+
+  if (!email){
+    msgEl.textContent = 'Enter your email first.';
+    msgEl.className = 'error';
+    return;
+  }
+
+  const btn = document.getElementById('forgotBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: getSiteBaseUrl()
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Send Reset Link';
+
+  if (error){
+    msgEl.textContent = 'Could not send reset email — try again shortly.';
+    msgEl.className = 'error';
+    console.error(error);
+    return;
+  }
+
+  msgEl.textContent = 'Check your email for a reset link.';
+  msgEl.className = 'success';
+}
+
 async function doLogin(){
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
@@ -4096,7 +4170,9 @@ function onSignedIn(session){
 
   supabaseClient.rpc('is_admin', { uid: session.user.id }).then(({ data, error }) => {
     if (!error && data){
+      currentUserIsAdmin = true;
       document.getElementById('adminDashLink').style.display = 'inline';
+      loadQuoteList(); // refresh so Delete buttons appear now that we know they're an admin
     }
   });
 }
@@ -4136,6 +4212,16 @@ function getHashParam(name){
 const authLinkType = getHashParam('type'); // 'invite', 'recovery', 'signup', etc. or null
 let pendingPasswordSession = null;
 
+function backToLoginScreen(){
+  // Manual escape hatch: no matter what state the page got stuck in,
+  // this forces the normal email/password sign-in screen to show and
+  // clears any leftover invite/recovery token from the address bar.
+  history.replaceState(null, '', window.location.pathname);
+  document.getElementById('setPasswordOverlay').classList.add('hidden');
+  document.getElementById('deniedOverlay') && document.getElementById('deniedOverlay').classList.remove('visible');
+  document.getElementById('loginOverlay').classList.remove('hidden');
+}
+
 if (authLinkType === 'invite' || authLinkType === 'recovery'){
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (session && (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY')){
@@ -4144,6 +4230,14 @@ if (authLinkType === 'invite' || authLinkType === 'recovery'){
       document.getElementById('setPasswordOverlay').classList.remove('hidden');
     }
   });
+  // Safety net: if this is a stale/already-used/expired invite link and
+  // no session ever gets established, don't leave the page stuck —
+  // fall back to the normal sign-in screen after a few seconds.
+  setTimeout(() => {
+    if (!pendingPasswordSession){
+      backToLoginScreen();
+    }
+  }, 4000);
 } else {
   // Normal flow: check for an existing session on page load
   (async () => {
@@ -4252,7 +4346,7 @@ async function loadQuoteList(){
         <td data-label="Date">${dateStr}</td>
         <td class="row-actions" data-label="">
           <button class="edit-btn" onclick="editQuotation('${q.id}')">Edit</button>
-          <button class="delete-btn" onclick="deleteQuotation('${q.id}')">Delete</button>
+          ${currentUserIsAdmin ? `<button class="delete-btn" onclick="deleteQuotation('${q.id}')">Delete</button>` : ''}
         </td>
       </tr>`;
   });
