@@ -49,7 +49,7 @@
   .sheet[dir="rtl"] label{ font-family: 'Cairo', sans-serif; }
   .sheet[dir="rtl"] .header{ flex-direction: row-reverse; }
   .sheet[dir="rtl"] .meta div{ border-right: none; border-left: 1px solid var(--line); }
-  .sheet[dir="rtl"] .meta div:nth-child(2n){ border-left: none; }
+  .sheet[dir="rtl"] .meta div:last-child{ border-left: none; }
   .sheet[dir="rtl"] .title-block{ text-align: left; }
   .sheet[dir="rtl"] .box .value-row{ flex-direction: row-reverse; justify-content: flex-end; }
   .sheet[dir="rtl"] .addons thead td{ text-align: right; }
@@ -90,13 +90,12 @@
 
   .meta{
     display:grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     background: var(--cream);
     border-bottom: 1px solid var(--line);
   }
-  .meta div{ padding: 12px 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
-  .meta div:nth-child(2n){ border-right:none; }
-  .meta div:nth-last-child(-n+2){ border-bottom:none; }
+  .meta div{ padding: 12px 18px; border-right: 1px solid var(--line); min-width: 0; }
+  .meta div:last-child{ border-right:none; }
   .meta label{
     display:block;
     font-size: 9.5px;
@@ -274,7 +273,9 @@
   @media (max-width: 700px){
     .grid{ grid-template-columns: 1fr 1fr; }
     .coverage-grid{ grid-template-columns: 1fr; }
-    .meta{ grid-template-columns: 1fr 1fr; }
+    .meta{ grid-template-columns: 1fr; }
+    .meta div{ border-right: none !important; border-left: none !important; border-bottom: 1px solid var(--line); }
+    .meta div:last-child{ border-bottom: none; }
     .sign-row{ grid-template-columns: 1fr; }
     .header{ flex-direction:column; align-items:flex-start; gap:14px; }
     .header .title-block{ text-align:left; }
@@ -321,7 +322,7 @@ const T = {
     lblEmail: 'البريد الإلكتروني', lblPolicyType: 'نوع الوثيقة', lblExistingPolicy: 'رقم الوثيقة الحالية (إن وجد التجديد)',
     secVehicleDetails: 'بيانات المركبة', lblMake: 'الصانع', lblModel: 'الموديل', lblYear: 'سنة الصنع',
     lblPlate: 'رقم اللوحة', lblChassis: 'رقم الهيكل', lblUsage: 'الاستخدام',
-    secCoverage: 'التغطية وقسط التأمين', lblSumInsured: 'مبلغ التأمين', lblRate: 'المعدل', lblBasePremium: 'القسط الأساسي',
+    secCoverage: 'التغطية وقسط التأمين', lblSumInsured: 'مبلغ التأمين', lblRate: 'النسبة', lblBasePremium: 'القسط الأساسي',
     lblRepairLocation: 'مكان التصليح', lblSupervisionFee: 'رسوم الرقابة والإشراف + الإصدار',
     optInsideAgency: 'داخل الوكالة', optOutsideAgency: 'خارج الوكالة',
     secAccidentTerms: 'شروط الحوادث', atGroupKnown: 'الحادث المعلوم', atGroupUnknown: 'الحادث المجهول',
@@ -399,7 +400,6 @@ async function loadQuotation(){
       <div class="meta">
         <div><label>${esc(t.lblQuoteNo)}</label><div class="val ltr-field">${esc(row.quote_no)}</div></div>
         <div><label>${esc(t.lblDateIssued)}</label><div class="val ltr-field">${esc(d.dateIssued)}</div></div>
-        <div><label>${esc(t.lblValidUntil)}</label><div class="val ltr-field">${esc(d.validUntil)}</div></div>
         <div><label>${esc(t.lblUnderwriter)}</label><div class="val">${esc(d.underwriter)}</div></div>
       </div>
 

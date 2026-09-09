@@ -2375,18 +2375,16 @@ var qrcode = function() {
   /* Meta strip */
   .meta{
     display:grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     background: var(--cream);
     border-bottom: 1px solid var(--line);
   }
   .meta div{
     padding: 12px 18px;
     border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
     min-width: 0;
   }
-  .meta div:nth-child(2n){ border-right:none; }
-  .meta div:nth-last-child(-n+2){ border-bottom:none; }
+  .meta div:last-child{ border-right:none; }
   .meta label{
     display:block;
     font-size: 9.5px;
@@ -2850,7 +2848,7 @@ var qrcode = function() {
   }
   .sheet[dir="rtl"] .header{ flex-direction: row-reverse; }
   .sheet[dir="rtl"] .meta div{ border-right: none; border-left: 1px solid var(--line); }
-  .sheet[dir="rtl"] .meta div:nth-child(2n){ border-left: none; }
+  .sheet[dir="rtl"] .meta div:last-child{ border-left: none; }
   .sheet[dir="rtl"] .title-block{ text-align: left; }
   .sheet[dir="rtl"] .box .value-row{ flex-direction: row-reverse; justify-content: flex-end; }
   .sheet[dir="rtl"] .addons thead td{ text-align: right; }
@@ -3263,7 +3261,9 @@ var qrcode = function() {
   @media (max-width: 700px){
     .grid{ grid-template-columns: 1fr; }
     .coverage-grid{ grid-template-columns: 1fr; }
-    .meta{ grid-template-columns: 1fr 1fr; }
+    .meta{ grid-template-columns: 1fr; }
+    .meta div{ border-right: none !important; border-left: none !important; border-bottom: 1px solid var(--line); }
+    .meta div:last-child{ border-bottom: none; }
     .sign-row{ grid-template-columns: 1fr; }
     .header{ flex-direction:column; align-items:flex-start; gap:14px; padding: 24px 22px; }
     .header .title-block{ text-align:left; }
@@ -3447,10 +3447,6 @@ var qrcode = function() {
       <div>
         <label data-i18n="lblDateIssued">Date Issued</label>
         <input type="text" id="dateIssued" class="ltr-field locked-field" readonly />
-      </div>
-      <div>
-        <label data-i18n="lblValidUntil">Valid Until</label>
-        <input type="date" id="validUntil" class="ltr-field" />
       </div>
       <div>
         <label data-i18n="lblUnderwriter">Underwriter</label>
@@ -3822,7 +3818,7 @@ const TRANSLATIONS = {
     phUsage: 'خاص / تجاري',
     secCoverage: 'التغطية وقسط التأمين',
     lblSumInsured: 'مبلغ التأمين',
-    lblRate: 'المعدل',
+    lblRate: 'النسبة',
     lblBasePremium: 'القسط الأساسي',
     addonHeaderName: 'الإضافات / المزايا',
     addonHeaderAmount: 'المبلغ (د.ك)',
@@ -3900,13 +3896,12 @@ const ADDON_CATALOG = [
   { key:'replace20_medium',   group:'grpReplace20', en:'Medium', ar:'فئة متوسطة', type:'fixed', amount:50  },
   { key:'replace20_large',    group:'grpReplace20', en:'Large',  ar:'فئة كبيرة',  type:'fixed', amount:70  },
   { key:'replace20_luxury',   group:'grpReplace20', en:'Luxury', ar:'فئة فارهة',  type:'fixed', amount:260 },
-  { key:'naturalDisaster',    group:'grpOther', en:'Natural Disaster Coverage',        ar:'تغطية الكوارث الطبيعية',              type:'fixed', amount:60 },
-  { key:'warCoverage',        group:'grpOther', en:'War Coverage',                     ar:'تغطية الحروب',                        type:'percent', rate:0.005 },
+  { key:'naturalDisaster',    group:'grpOther', en:'Natural Disaster Coverage',        ar:'تغطية الكوارث الطبيعية',              type:'fixed', amount:35 },
+  { key:'warCoverage',        group:'grpOther', en:'War Coverage',                     ar:'تغطية الحروب',                        type:'fixed', amount:35 },
   { key:'geoExtension',       group:'grpOther', en:'Geographical Extension Coverage',  ar:'تغطية التمديد الجغرافي',              type:'percentMin', rate:0.01, min:100 },
-  { key:'personalAccidentA',  group:'grpOther', en:'Personal Accident Coverage',       ar:'تغطية الحوادث الشخصية',               type:'fixed', amount:30 },
+  { key:'personalAccidentA',  group:'grpOther', en:'Personal Accident Coverage',       ar:'تغطية الحوادث الشخصية',               type:'fixed', amount:20 },
   { key:'roadside',           group:'grpOther', en:'Roadside Assistance',              ar:'خدمة المساعدة على الطريق',            type:'fixed', amount:5  },
   { key:'waiverSubrogation',  group:'grpOther', en:'Waiver of Right of Subrogation',   ar:'عدم حق الرجوع',                       type:'fixed', amount:30 },
-  { key:'personalAccidentB',  group:'grpOther', en:'Personal Accidents',               ar:'الحوادث الشخصية',                     type:'fixed', amount:20 },
   { key:'vehicleProtect500',  group:'grpOther', en:'Vehicle Protection — up to KWD 500',  ar:'تغطية حماية السيارة — لغاية 500 د.ك',    type:'fixed', amount:25 },
   { key:'vehicleProtect1000', group:'grpOther', en:'Vehicle Protection — KWD 501–1,000',  ar:'تغطية حماية السيارة — 501-1,000 د.ك',    type:'fixed', amount:50 },
 ];
