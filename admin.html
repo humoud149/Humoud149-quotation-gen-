@@ -143,6 +143,54 @@
 
   .dash-empty{ font-size: 12.5px; color: var(--muted); padding: 10px 0; }
 
+  .filter-bar{
+    display:flex; align-items:flex-end; gap: 10px; flex-wrap:wrap;
+    background:#fff; border-radius: 8px; padding: 14px 18px;
+    box-shadow: 0 4px 18px rgba(11,19,57,0.06); margin-bottom: 10px;
+  }
+  .filter-group{ display:flex; flex-direction:column; gap: 4px; }
+  .filter-group label{ font-size: 10px; text-transform:uppercase; letter-spacing:0.6px; color: var(--muted); font-weight:700; }
+  .filter-group input{
+    border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px;
+    font-size: 12.5px; font-family:'Inter',sans-serif; color: var(--ink);
+  }
+  .filter-btn{
+    border: 1px solid var(--line); background: var(--cream); color: var(--navy);
+    font-size: 12px; font-weight:600; padding: 8px 14px; border-radius: 5px; cursor:pointer;
+  }
+  .filter-btn:hover{ background: #eee9dd; }
+  .filter-btn-primary{ background: var(--navy); color:#fff; border-color: var(--navy); }
+  .filter-btn-primary:hover{ background: var(--navy-2); }
+  .filter-btn-export{ margin-left: auto; background: var(--gold); color:#fff; border-color: var(--gold); }
+  .filter-btn-export:hover{ background: #a67840; }
+  .filter-range-label{ font-size: 11.5px; color: var(--muted); margin: 0 4px 20px; }
+
+  .attach-row{
+    display:grid; grid-template-columns: 1fr 2fr 70px 100px; gap: 10px;
+    align-items:center; padding: 8px 0; border-bottom: 1px solid var(--cream);
+    font-size: 12.5px;
+  }
+  .attach-row.head{ font-size: 10px; text-transform:uppercase; color: var(--muted); font-weight:700; border-bottom: 2px solid var(--line); }
+  .attach-name{ color: var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .attach-bar-track{ background: var(--cream); border-radius: 4px; height: 14px; overflow:hidden; }
+  .attach-bar-fill{ background: linear-gradient(90deg, var(--gold), var(--navy)); height:100%; }
+  .attach-count{ text-align:right; font-weight:700; color: var(--navy); }
+  .attach-revenue{ text-align:right; color: var(--muted); }
+
+  .activity-row{
+    display:flex; justify-content:space-between; align-items:center; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid var(--cream); font-size: 12.5px;
+  }
+  .activity-main{ display:flex; flex-direction:column; gap: 2px; }
+  .activity-client{ color: var(--ink); font-weight:600; }
+  .activity-meta{ color: var(--muted); font-size: 11px; }
+  .activity-status{
+    font-size: 10px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;
+    padding: 3px 9px; border-radius: 10px; flex-shrink:0;
+  }
+  .activity-status.completed{ background:#e6f4ea; color:#2e7d47; }
+  .activity-status.draft{ background:#fdf1e0; color:#a67840; }
+
   .footer-note{
     text-align:center; font-size: 11px; color: var(--muted); margin-top: 30px;
   }
@@ -185,6 +233,24 @@
         </div>
       </div>
 
+      <div class="filter-bar">
+        <div class="filter-group">
+          <label>From</label>
+          <input type="date" id="filterFrom" />
+        </div>
+        <div class="filter-group">
+          <label>To</label>
+          <input type="date" id="filterTo" />
+        </div>
+        <button type="button" class="filter-btn filter-btn-primary" onclick="applyDateFilter()">Apply</button>
+        <button type="button" class="filter-btn" onclick="setPreset('today')">Today</button>
+        <button type="button" class="filter-btn" onclick="setPreset('week')">This Week</button>
+        <button type="button" class="filter-btn" onclick="setPreset('month')">This Month</button>
+        <button type="button" class="filter-btn" onclick="setPreset('all')">All Time</button>
+        <button type="button" class="filter-btn filter-btn-export" onclick="exportCSV()">&#11015; Export CSV</button>
+      </div>
+      <div class="filter-range-label" id="filterRangeLabel"></div>
+
       <div class="stat-grid">
         <div class="stat-card accent">
           <div class="label">Total Quotations</div>
@@ -201,6 +267,10 @@
         <div class="stat-card">
           <div class="label">Average Premium</div>
           <div class="value" id="statAvgPremium">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Completion Rate</div>
+          <div class="value" id="statCompletionRate">—</div>
         </div>
       </div>
 
@@ -236,6 +306,45 @@
             <span>&#9679; English: <b id="countEn">0</b></span>
             <span>&#9679; Arabic: <b id="countAr">0</b></span>
           </div>
+
+          <h3 style="margin-top:24px;">Draft vs Completed</h3>
+          <p class="panel-sub">How many quotations started actually get finished</p>
+          <div class="split-row">
+            <div class="split-track">
+              <div class="split-a" id="splitCompleted" style="width:50%"></div>
+              <div class="split-b" id="splitDraft" style="width:50%"></div>
+            </div>
+          </div>
+          <div class="split-legend">
+            <span>&#9679; Completed: <b id="countCompleted">0</b></span>
+            <span>&#9679; Draft (unfinished): <b id="countDraft">0</b></span>
+          </div>
+
+          <h3 style="margin-top:24px;">Policy Type</h3>
+          <p class="panel-sub">New vs Renewal</p>
+          <div class="split-row">
+            <div class="split-track">
+              <div class="split-a" id="splitNew" style="width:50%"></div>
+              <div class="split-b" id="splitRenewal" style="width:50%"></div>
+            </div>
+          </div>
+          <div class="split-legend">
+            <span>&#9679; New: <b id="countNew">0</b></span>
+            <span>&#9679; Renewal: <b id="countRenewal">0</b></span>
+          </div>
+
+          <h3 style="margin-top:24px;">Repair Location</h3>
+          <p class="panel-sub">Inside vs Outside Agency</p>
+          <div class="split-row">
+            <div class="split-track">
+              <div class="split-a" id="splitInside" style="width:50%"></div>
+              <div class="split-b" id="splitOutside" style="width:50%"></div>
+            </div>
+          </div>
+          <div class="split-legend">
+            <span>&#9679; Inside Agency: <b id="countInside">0</b></span>
+            <span>&#9679; Outside Agency: <b id="countOutside">0</b></span>
+          </div>
         </div>
       </div>
 
@@ -257,6 +366,35 @@
           <h3>Quotations by Vehicle Year</h3>
           <p class="panel-sub">Model years appearing most often</p>
           <div id="barByYear"></div>
+        </div>
+      </div>
+
+      <div class="dash-row">
+        <div class="panel">
+          <h3>Quotations Over Time</h3>
+          <p class="panel-sub">Activity by day, within the selected range</p>
+          <div id="barByDay"></div>
+        </div>
+        <div class="panel">
+          <h3>Premium by Vehicle Make</h3>
+          <p class="panel-sub">Which manufacturers generate the most premium</p>
+          <div id="barPremiumByMake"></div>
+        </div>
+      </div>
+
+      <div class="dash-row" style="grid-template-columns: 1fr;">
+        <div class="panel">
+          <h3>Add-on Attachment Rate</h3>
+          <p class="panel-sub">How often each add-on gets selected, and extra revenue it brings in</p>
+          <div id="addonAttachTable"></div>
+        </div>
+      </div>
+
+      <div class="dash-row" style="grid-template-columns: 1fr;">
+        <div class="panel">
+          <h3>Recent Activity</h3>
+          <p class="panel-sub">The last 10 quotations created or updated, across the team</p>
+          <div id="recentActivity"></div>
         </div>
       </div>
 
@@ -353,7 +491,7 @@ function fmtKwd(n){
   return 'KWD ' + n.toLocaleString('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 }
 
-function renderBarList(containerId, dataObj, maxItems){
+function renderBarList(containerId, dataObj, maxItems, formatFn){
   const entries = Object.entries(dataObj).sort((a,b) => b[1]-a[1]).slice(0, maxItems || 8);
   const container = document.getElementById(containerId);
   if (!entries.length){
@@ -365,16 +503,88 @@ function renderBarList(containerId, dataObj, maxItems){
     <div class="bar-row">
       <div class="bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${(count/max*100).toFixed(1)}%"></div></div>
-      <div class="bar-count">${count}</div>
+      <div class="bar-count">${formatFn ? formatFn(count) : count}</div>
     </div>
   `).join('');
 }
 
-async function loadStats(){
-  const { data: quotes, error } = await supabaseClient
-    .from('quotations')
-    .select('*')
-    .eq('status', 'completed');
+function dayKey(isoTimestamp){
+  return (isoTimestamp || '').slice(0, 10); // 'YYYY-MM-DD'
+}
+
+function setSplit(aId, bId, legendAId, legendBId, aCount, bCount){
+  const total = aCount + bCount;
+  const aPct = total ? (aCount / total * 100) : 50;
+  document.getElementById(aId).style.width = aPct + '%';
+  document.getElementById(bId).style.width = (100 - aPct) + '%';
+  document.getElementById(legendAId).textContent = aCount;
+  document.getElementById(legendBId).textContent = bCount;
+}
+
+let lastLoadedQuotes = []; // completed quotes in the current filtered range, kept for CSV export
+
+function setPreset(preset){
+  const today = new Date();
+  const fmt = (d) => d.toISOString().slice(0, 10);
+  let from, to;
+  if (preset === 'today'){
+    from = to = fmt(today);
+  } else if (preset === 'week'){
+    const start = new Date(today);
+    start.setDate(today.getDate() - today.getDay());
+    from = fmt(start);
+    to = fmt(today);
+  } else if (preset === 'month'){
+    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+    from = fmt(start);
+    to = fmt(today);
+  } else {
+    from = '';
+    to = '';
+  }
+  document.getElementById('filterFrom').value = from;
+  document.getElementById('filterTo').value = to;
+  loadStats(from, to);
+}
+
+function applyDateFilter(){
+  const from = document.getElementById('filterFrom').value;
+  const to = document.getElementById('filterTo').value;
+  loadStats(from, to);
+}
+
+function exportCSV(){
+  const rows = [
+    ['Quote No', 'Type', 'Status', 'Client Name', 'Vehicle Make', 'Vehicle Model', 'Vehicle Year',
+     'Sum Insured', 'Total Premium', 'Repair Location', 'Policy Type', 'Prepared By', 'Created At']
+  ];
+  lastLoadedQuotes.forEach(q => {
+    const d = q.data || {};
+    rows.push([
+      q.quote_no || '', q.quote_type || '', q.status || '', d.clientName || '',
+      d.vehicleMake || '', d.vehicleModel || '', d.vehicleYear || '',
+      d.sumInsured || '', d.totalPremium || '', d.repairLocation || '', d.policyType || '',
+      q.created_by_email || '', q.created_at || ''
+    ]);
+  });
+  const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gig-quotations-' + new Date().toISOString().slice(0,10) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function loadStats(fromDate, toDate){
+  let query = supabaseClient.from('quotations').select('*');
+  if (fromDate) query = query.gte('created_at', fromDate + 'T00:00:00');
+  if (toDate) query = query.lte('created_at', toDate + 'T23:59:59');
+
+  const { data: allQuotes, error } = await query;
 
   if (error){
     console.error(error);
@@ -382,55 +592,134 @@ async function loadStats(){
     return;
   }
 
+  const rangeLabel = document.getElementById('filterRangeLabel');
+  rangeLabel.textContent = (fromDate || toDate)
+    ? `Showing ${fromDate || 'the beginning'} to ${toDate || 'today'}`
+    : 'Showing all-time data';
+
+  const quotes = (allQuotes || []).filter(q => q.status === 'completed');
+  const draftQuotes = (allQuotes || []).filter(q => q.status !== 'completed');
+  lastLoadedQuotes = quotes;
+
   let totalSumInsured = 0, totalPremium = 0;
   let individualCount = 0, corporateCount = 0;
   let enCount = 0, arCount = 0;
-  const byUser = {}, byMake = {}, byModel = {}, byYear = {};
+  let newCount = 0, renewalCount = 0;
+  let insideCount = 0, outsideCount = 0;
+  const byUser = {}, byMake = {}, byModel = {}, byYear = {}, byDay = {}, premiumByMake = {};
+  const addonAttach = {}; // name -> { count, revenue }
 
-  (quotes || []).forEach(q => {
+  quotes.forEach(q => {
     const d = q.data || {};
+    const premium = parseFloat(d.totalPremium) || 0;
     totalSumInsured += parseFloat(d.sumInsured) || 0;
-    totalPremium += parseFloat(d.totalPremium) || 0;
+    totalPremium += premium;
 
     if (q.quote_type === 'individual') individualCount++; else corporateCount++;
     if ((d.language || 'en') === 'ar') arCount++; else enCount++;
+    if ((d.policyType || '').toLowerCase() === 'renewal') renewalCount++; else newCount++;
+    if (d.repairLocation === 'Outside Agency') outsideCount++; else if (d.repairLocation === 'Inside Agency') insideCount++;
 
     const user = q.created_by_email || 'Unknown';
     byUser[user] = (byUser[user] || 0) + 1;
 
     const make = (d.vehicleMake || '').trim();
-    if (make) byMake[make] = (byMake[make] || 0) + 1;
+    if (make){
+      byMake[make] = (byMake[make] || 0) + 1;
+      premiumByMake[make] = (premiumByMake[make] || 0) + premium;
+    }
 
     const model = (d.vehicleModel || '').trim();
     if (model) byModel[model] = (byModel[model] || 0) + 1;
 
     const year = (d.vehicleYear || '').trim();
     if (year) byYear[year] = (byYear[year] || 0) + 1;
+
+    const day = dayKey(q.created_at);
+    if (day) byDay[day] = (byDay[day] || 0) + 1;
+
+    (d.addons || []).forEach(a => {
+      const name = (a.name || '').trim();
+      if (!name) return;
+      if (!addonAttach[name]) addonAttach[name] = { count: 0, revenue: 0 };
+      addonAttach[name].count += 1;
+      addonAttach[name].revenue += parseFloat(a.amount) || 0;
+    });
   });
 
-  const total = (quotes || []).length;
+  const total = quotes.length;
+  const grandTotal = (allQuotes || []).length;
 
   document.getElementById('statTotal').innerHTML = total + ' <small>quotations</small>';
   document.getElementById('statSumInsured').textContent = fmtKwd(totalSumInsured);
   document.getElementById('statTotalPremium').textContent = fmtKwd(totalPremium);
   document.getElementById('statAvgPremium').textContent = fmtKwd(total ? totalPremium / total : 0);
+  document.getElementById('statCompletionRate').innerHTML = grandTotal
+    ? Math.round(total / grandTotal * 100) + '<small>%</small>'
+    : '—';
 
-  const indPct = total ? (individualCount / total * 100) : 50;
-  document.getElementById('splitIndividual').style.width = indPct + '%';
-  document.getElementById('splitCorporate').style.width = (100 - indPct) + '%';
-  document.getElementById('countIndividual').textContent = individualCount;
-  document.getElementById('countCorporate').textContent = corporateCount;
-
-  const enPct = total ? (enCount / total * 100) : 50;
-  document.getElementById('splitEn').style.width = enPct + '%';
-  document.getElementById('splitAr').style.width = (100 - enPct) + '%';
-  document.getElementById('countEn').textContent = enCount;
-  document.getElementById('countAr').textContent = arCount;
+  setSplit('splitIndividual', 'splitCorporate', 'countIndividual', 'countCorporate', individualCount, corporateCount);
+  setSplit('splitEn', 'splitAr', 'countEn', 'countAr', enCount, arCount);
+  setSplit('splitCompleted', 'splitDraft', 'countCompleted', 'countDraft', total, draftQuotes.length);
+  setSplit('splitNew', 'splitRenewal', 'countNew', 'countRenewal', newCount, renewalCount);
+  setSplit('splitInside', 'splitOutside', 'countInside', 'countOutside', insideCount, outsideCount);
 
   renderBarList('barByUser', byUser, 8);
   renderBarList('barByMake', byMake, 8);
   renderBarList('barByModel', byModel, 8);
   renderBarList('barByYear', byYear, 10);
+  renderBarList('barByDay', byDay, 14);
+  renderBarList('barPremiumByMake', premiumByMake, 8, (v) => fmtKwd(v));
+
+  renderAddonAttachTable(addonAttach, total);
+  renderRecentActivity(allQuotes || []);
+}
+
+function renderAddonAttachTable(addonAttach, totalQuotes){
+  const container = document.getElementById('addonAttachTable');
+  const entries = Object.entries(addonAttach).sort((a, b) => b[1].count - a[1].count);
+  if (!entries.length){
+    container.innerHTML = '<div class="dash-empty">No add-ons selected in this range yet.</div>';
+    return;
+  }
+  const maxCount = entries[0][1].count;
+  let html = `
+    <div class="attach-row head">
+      <div>Add-on</div><div>Attachment</div><div>Count</div><div>Revenue</div>
+    </div>`;
+  html += entries.map(([name, info]) => {
+    const pct = totalQuotes ? Math.round(info.count / totalQuotes * 100) : 0;
+    return `
+      <div class="attach-row">
+        <div class="attach-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+        <div class="attach-bar-track"><div class="attach-bar-fill" style="width:${(info.count/maxCount*100).toFixed(1)}%"></div></div>
+        <div class="attach-count">${info.count} <span style="color:var(--muted);font-weight:400;">(${pct}%)</span></div>
+        <div class="attach-revenue">${fmtKwd(info.revenue)}</div>
+      </div>`;
+  }).join('');
+  container.innerHTML = html;
+}
+
+function renderRecentActivity(allQuotes){
+  const container = document.getElementById('recentActivity');
+  const sorted = [...allQuotes].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
+  if (!sorted.length){
+    container.innerHTML = '<div class="dash-empty">No activity in this range yet.</div>';
+    return;
+  }
+  container.innerHTML = sorted.map(q => {
+    const d = q.data || {};
+    const client = d.clientName || d.companyName || '(no client name yet)';
+    const when = q.created_at ? new Date(q.created_at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
+    return `
+      <div class="activity-row">
+        <div class="activity-main">
+          <span class="activity-client">${escapeHtml(client)}</span>
+          <span class="activity-meta">${escapeHtml(q.quote_no || 'Not yet numbered')} &middot; ${escapeHtml(q.created_by_email || 'Unknown')} &middot; ${when}</span>
+        </div>
+        <span class="activity-status ${q.status === 'completed' ? 'completed' : 'draft'}">${q.status === 'completed' ? 'Completed' : 'Draft'}</span>
+      </div>`;
+  }).join('');
 }
 </script>
 
