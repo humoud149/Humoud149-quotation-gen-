@@ -2810,6 +2810,9 @@ var qrcode = function() {
     line-height: 1.3;
     text-align:left;
   }
+  .sheet[dir="rtl"] .qr-info{ flex-direction: row-reverse; }
+  .sheet[dir="rtl"] .qr-info-text{ direction: rtl; text-align: right; }
+  .sheet[dir="rtl"] .qr-wrap .qr-caption{ direction: rtl; }
 
   .actions{
     max-width: 900px;
