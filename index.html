@@ -2518,15 +2518,17 @@ var qrcode = function() {
     display:flex;
     align-items:baseline;
     gap: 4px;
+    min-width: 0;
   }
   .box input,
   .box select{
     border:none;
     background:transparent;
-    font-size: 20px;
+    font-size: 18px;
     font-weight:700;
     color: var(--navy);
     width: 100%;
+    min-width: 0;
     font-family:'Inter',sans-serif;
     appearance:none;
     -webkit-appearance:none;
@@ -2662,6 +2664,8 @@ var qrcode = function() {
     display:flex;
     direction: ltr;
     justify-content:flex-end;
+    align-items:flex-end;
+    gap: 32px;
     margin-top: 22px;
   }
   .signature-wrap{
@@ -2765,8 +2769,9 @@ var qrcode = function() {
 
   .qr-wrap{
     display:flex;
+    flex-direction:column;
     align-items:center;
-    gap: 10px;
+    gap: 6px;
     flex-shrink:0;
   }
   .qr-wrap canvas,
@@ -2782,8 +2787,28 @@ var qrcode = function() {
   .qr-wrap .qr-caption{
     font-size: 9.5px;
     color: var(--muted);
-    max-width: 110px;
+    max-width: 120px;
     line-height: 1.3;
+    text-align:center;
+  }
+  .qr-info{
+    display:flex;
+    align-items:flex-start;
+    gap: 4px;
+    max-width: 150px;
+    margin-top: 2px;
+  }
+  .info-icon{
+    font-size: 12px;
+    color: var(--gold);
+    flex-shrink:0;
+    line-height:1.3;
+  }
+  .qr-info-text{
+    font-size: 8.5px;
+    color: var(--muted);
+    line-height: 1.3;
+    text-align:left;
   }
 
   .actions{
@@ -3303,6 +3328,8 @@ var qrcode = function() {
     .ref-table tr{ page-break-inside: avoid; break-inside: avoid; }
     .sheet{ box-shadow:none; border-radius:0; max-width:none; }
     input, select{ color:#000 !important; }
+    .box.total input{ color:#fff !important; }
+    .box input, .box select{ font-size: 16px !important; }
     select{ background-image:none !important; padding-right:2px !important; padding-left:2px !important; }
     .terms-editable{ color:#000 !important; overflow: visible !important; height:auto !important; }
     .box, .addons, .terms-editable, .meta, .grid, .coverage-grid,
@@ -3389,8 +3416,8 @@ var qrcode = function() {
     .addon-picker-row .add-row-btn{ width: 100%; padding: 12px; }
 
     /* Footer: company / QR / disclaimer stack instead of cramming into one row */
-    .footer{ flex-direction: column; align-items: flex-start; gap: 14px; }
-    .footer .qr-wrap{ align-self: flex-start; }
+    .footer{ flex-direction: column; align-items: flex-start; gap: 8px; }
+    .signature-row{ flex-wrap: wrap; justify-content: flex-start; gap: 20px; }
 
     /* Accident Terms: label above value instead of a cramped side-by-side row */
     .at-table, .at-table tbody, .at-table tr, .at-table td{ display: block; width: auto; }
@@ -3695,6 +3722,14 @@ var qrcode = function() {
       </div>
 
       <div class="signature-row">
+        <div class="qr-wrap">
+          <img id="qrImage" alt="QR code" />
+          <span class="qr-caption" data-i18n="qrCaption">Scan to view this quotation online</span>
+          <div class="qr-info">
+            <span class="info-icon">&#9432;</span>
+            <span class="qr-info-text" data-i18n="qrInfoText">This QR code contains the general terms of the policy and is an integral part of this offer.</span>
+          </div>
+        </div>
         <div class="signature-wrap">
           <label data-i18n="lblClientSignature">Client Signature</label>
           <div class="signature-box" id="signatureBox" onclick="openSignatureModal()">
@@ -3706,10 +3741,6 @@ var qrcode = function() {
 
       <div class="footer">
         <span data-i18n="footerCompany">Gulf Insurance Group (GIG) &mdash; Kuwait</span>
-        <div class="qr-wrap">
-          <img id="qrImage" alt="QR code" />
-          <span class="qr-caption" data-i18n="qrCaption">Scan to view this quotation online</span>
-        </div>
         <span data-i18n="footerNote">This is a quotation, not a policy document.</span>
       </div>
 
@@ -3880,6 +3911,7 @@ const TRANSLATIONS = {
     btnPrint: 'Print / Save as PDF',
     btnPolicyWording: 'Policy Wording (EN / AR)',
     qrCaption: 'Scan to view this quotation online',
+    qrInfoText: 'This QR code contains the general terms of the policy and is an integral part of this offer.',
     defaultTerms:
 `1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
 2. Premium is subject to inspection of the vehicle prior to policy issuance.
@@ -3985,6 +4017,7 @@ const TRANSLATIONS = {
     btnPrint: 'طباعة / حفظ كـ PDF',
     btnPolicyWording: 'نص وثيقة التأمين (عربي / إنجليزي)',
     qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
+    qrInfoText: 'هذا الـQR كود يحتوي على الشروط العامة من الوثيقة وهو جزء لا يتجزأ من هذا العرض.',
     defaultTerms:
 `1. هذا العرض صالح لمدة 15 يومًا من تاريخ إصداره وخاضع لموافقة الاكتتاب.
 2. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
