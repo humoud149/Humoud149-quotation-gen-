@@ -2658,6 +2658,99 @@ var qrcode = function() {
   }
   .sign-row .field input{ border-bottom: 1px solid var(--ink); }
 
+  .signature-row{
+    display:flex;
+    direction: ltr;
+    justify-content:flex-end;
+    margin-top: 22px;
+  }
+  .signature-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+  }
+  .signature-wrap label{
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .signature-box{
+    width: 220px;
+    height: 90px;
+    border: 1.5px dashed var(--line);
+    border-radius: 6px;
+    background: var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    overflow:hidden;
+  }
+  .signature-box:hover{ border-color: var(--gold); }
+  .signature-box img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .signature-box span{ font-size: 12px; color: var(--muted); }
+
+  #signatureModal{
+    position: fixed;
+    inset: 0;
+    background: rgba(11,19,57,0.85);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 2000;
+    padding: 16px;
+  }
+  #signatureModal.hidden{ display:none; }
+  .sig-modal-inner{
+    background:#fff;
+    border-radius: 10px;
+    padding: 20px;
+    width: 100%;
+    max-width: 480px;
+    text-align:center;
+  }
+  .sig-modal-inner h3{
+    font-family:'Playfair Display', serif;
+    color: var(--navy);
+    margin: 0 0 4px;
+    font-size: 18px;
+  }
+  .sig-modal-hint{
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0 0 14px;
+  }
+  #sigCanvas{
+    width: 100%;
+    height: 220px;
+    border: 1.5px solid var(--line);
+    border-radius: 6px;
+    background: #fbfaf7;
+    touch-action: none;
+    display:block;
+  }
+  .sig-modal-actions{
+    display:flex;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .sig-btn{
+    flex:1;
+    padding: 11px;
+    border-radius: 5px;
+    font-size: 13.5px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    border:none;
+  }
+  .sig-btn-clear{ background: var(--cream); color: var(--ink); border: 1px solid var(--line); }
+  .sig-btn-cancel{ background: var(--cream); color: var(--ink); border: 1px solid var(--line); }
+  .sig-btn-done{ background: var(--navy); color:#fff; }
+  .sig-btn-done:hover{ background: var(--navy-2); }
+
   .footer{
     margin-top: 34px;
     padding-top: 16px;
@@ -2726,21 +2819,6 @@ var qrcode = function() {
     cursor:pointer;
   }
   .policy-link:hover{ background: var(--cream); }
-  .whatsapp-btn{
-    display:inline-flex;
-    align-items:center;
-    gap: 6px;
-    border: none;
-    padding: 9px 20px;
-    border-radius: 5px;
-    font-size: 13px;
-    font-weight:600;
-    font-family:'Inter',sans-serif;
-    background: #25D366;
-    color:#fff;
-    cursor:pointer;
-  }
-  .whatsapp-btn:hover{ background: #1ebe5a; }
 
   @page{
     size: A4;
@@ -3212,6 +3290,11 @@ var qrcode = function() {
   }
 
   @media print{
+    *, *::before, *::after{
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
     body{ background:#fff; padding:0; }
     .actions{ display:none; }
     .no-print{ display:none !important; }
@@ -3223,7 +3306,7 @@ var qrcode = function() {
     select{ background-image:none !important; padding-right:2px !important; padding-left:2px !important; }
     .terms-editable{ color:#000 !important; overflow: visible !important; height:auto !important; }
     .box, .addons, .terms-editable, .meta, .grid, .coverage-grid,
-    table, tr, .sign-row, .header{
+    table, tr, .sign-row, .signature-row, .header{
       page-break-inside: avoid;
       break-inside: avoid;
     }
@@ -3277,7 +3360,7 @@ var qrcode = function() {
       gap: 10px;
       padding: 0 4px;
     }
-    .actions button, .actions .policy-link, .actions .whatsapp-btn{
+    .actions button, .actions .policy-link{
       width: 100%;
       justify-content: center;
       padding: 14px 20px;
@@ -3611,6 +3694,16 @@ var qrcode = function() {
         <div class="field"><label data-i18n="lblContactNumber">Contact Number</label><input type="text" id="contactNumber" class="ltr-field" placeholder="+965 ..." /></div>
       </div>
 
+      <div class="signature-row">
+        <div class="signature-wrap">
+          <label data-i18n="lblClientSignature">Client Signature</label>
+          <div class="signature-box" id="signatureBox" onclick="openSignatureModal()">
+            <img id="signatureImg" style="display:none;" alt="Client signature" />
+            <span id="signaturePlaceholder" data-i18n="sigPlaceholder">Tap to sign</span>
+          </div>
+        </div>
+      </div>
+
       <div class="footer">
         <span data-i18n="footerCompany">Gulf Insurance Group (GIG) &mdash; Kuwait</span>
         <div class="qr-wrap">
@@ -3647,13 +3740,12 @@ var qrcode = function() {
             <tr><td>سيارة بديلة فئة متوسطة</td><td>50</td></tr>
             <tr><td>سيارة بديلة فئة كبيرة</td><td>70</td></tr>
             <tr><td>سيارة بديلة فئة فارهة</td><td>260</td></tr>
-            <tr><td>تغطية الكوارث الطبيعية</td><td>60</td></tr>
-            <tr><td>تغطية الحروب</td><td>0.5%</td></tr>
+            <tr><td>تغطية الكوارث الطبيعية</td><td>35</td></tr>
+            <tr><td>تغطية الحروب</td><td>35</td></tr>
             <tr><td>تغطية التمديد الجغرافي</td><td>1% بحد أدنى 100 د.ك</td></tr>
-            <tr><td>تغطية الحوادث الشخصية</td><td>30</td></tr>
+            <tr><td>تغطية الحوادث الشخصية</td><td>20</td></tr>
             <tr><td>3) خدمة المساعدة على الطريق</td><td>5</td></tr>
             <tr><td>4) عدم حق الرجوع</td><td>30</td></tr>
-            <tr><td>5) الحوادث الشخصية</td><td>20</td></tr>
             <tr class="ref-group"><td colspan="2">تغطية حماية السيارة</td></tr>
             <tr><td>لغاية 500 د.ك</td><td>25</td></tr>
             <tr><td>501 د.ك - 1,000 د.ك</td><td>50</td></tr>
@@ -3666,10 +3758,22 @@ var qrcode = function() {
 
   <div class="actions">
     <a class="policy-link no-print" href="policy-wording.pdf" target="_blank" rel="noopener" data-i18n="btnPolicyWording">Policy Wording (EN / AR)</a>
-    <button id="whatsappBtn" class="whatsapp-btn no-print" style="display:none;" onclick="shareViaWhatsApp()" data-i18n="btnWhatsApp">&#128241; Share via WhatsApp</button>
     <button class="btn-print" onclick="handlePrint()" data-i18n="btnPrint">Print / Save as PDF</button>
   </div>
   </div><!-- /#appRoot -->
+
+  <div id="signatureModal" class="hidden no-print">
+    <div class="sig-modal-inner">
+      <h3 data-i18n="sigModalTitle">Sign Here</h3>
+      <p class="sig-modal-hint" data-i18n="sigModalHint">Use your finger to sign in the box below</p>
+      <canvas id="sigCanvas"></canvas>
+      <div class="sig-modal-actions">
+        <button type="button" class="sig-btn sig-btn-clear" onclick="clearSignature()" data-i18n="sigClear">Clear</button>
+        <button type="button" class="sig-btn sig-btn-cancel" onclick="closeSignatureModal()" data-i18n="sigCancel">Cancel</button>
+        <button type="button" class="sig-btn sig-btn-done" onclick="saveSignature()" data-i18n="sigDone">Done</button>
+      </div>
+    </div>
+  </div>
 
 <script>
 const SUPABASE_URL = 'https://jjalmqvhcjdmdivrupfu.supabase.co';
@@ -3764,12 +3868,17 @@ const TRANSLATIONS = {
     lblTermsNotes: 'Notes for the client',
     lblPreparedBy: 'Prepared By',
     lblContactNumber: 'Contact Number',
+    lblClientSignature: 'Client Signature',
+    sigPlaceholder: 'Tap to sign',
+    sigModalTitle: 'Sign Here',
+    sigModalHint: 'Use your finger to sign in the box below',
+    sigClear: 'Clear',
+    sigCancel: 'Cancel',
+    sigDone: 'Done',
     footerCompany: 'Gulf Insurance Group (GIG) — Kuwait',
     footerNote: 'This is a quotation, not a policy document.',
     btnPrint: 'Print / Save as PDF',
     btnPolicyWording: 'Policy Wording (EN / AR)',
-    btnWhatsApp: '📱 Share via WhatsApp',
-    whatsappMessage: 'Hi {clientName}, here is your GIG motor insurance quotation ({quoteNo}). You can view and download it here: {link}',
     qrCaption: 'Scan to view this quotation online',
     defaultTerms:
 `1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
@@ -3864,12 +3973,17 @@ const TRANSLATIONS = {
     lblTermsNotes: 'ملاحظات للعميل',
     lblPreparedBy: 'أُعد بواسطة',
     lblContactNumber: 'رقم التواصل',
+    lblClientSignature: 'توقيع العميل',
+    sigPlaceholder: 'اضغط للتوقيع',
+    sigModalTitle: 'التوقيع هنا',
+    sigModalHint: 'استخدم إصبعك للتوقيع داخل المربع أدناه',
+    sigClear: 'مسح',
+    sigCancel: 'إلغاء',
+    sigDone: 'تم',
     footerCompany: 'مجموعة الخليج للتأمين (GIG) — الكويت',
     footerNote: 'هذا عرض سعر وليس وثيقة تأمين.',
     btnPrint: 'طباعة / حفظ كـ PDF',
     btnPolicyWording: 'نص وثيقة التأمين (عربي / إنجليزي)',
-    btnWhatsApp: '📱 مشاركة عبر واتساب',
-    whatsappMessage: 'مرحبًا {clientName}، هذا عرض سعر تأمين المركبة الخاص بك من مجموعة الخليج للتأمين ({quoteNo}). يمكنك الاطلاع عليه وتحميله من هنا: {link}',
     qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
     defaultTerms:
 `1. هذا العرض صالح لمدة 15 يومًا من تاريخ إصداره وخاضع لموافقة الاكتتاب.
@@ -4272,7 +4386,6 @@ async function editQuotation(id){
   resetForm();
   populateFormData(data.data || {});
   document.getElementById('quoteNo').value = data.quote_no || '';
-  if (data.quote_no) document.getElementById('whatsappBtn').style.display = 'inline-flex';
   openQuotationForm(data.quote_type);
 }
 
@@ -4391,7 +4504,8 @@ function collectFormData(){
     terms: document.getElementById('terms').innerText,
     accidentTerms: accidentTerms,
     preparedBy: val('preparedBy'),
-    contactNumber: val('contactNumber')
+    contactNumber: val('contactNumber'),
+    signature: currentSignatureData
   };
 }
 
@@ -4426,6 +4540,16 @@ function populateFormData(d){
   setVal('supervisionFee', d.supervisionFee);
   setVal('preparedBy', d.preparedBy);
   setVal('contactNumber', d.contactNumber);
+
+  if (d.signature){
+    currentSignatureData = d.signature;
+    const img = document.getElementById('signatureImg');
+    img.src = d.signature;
+    img.style.display = 'block';
+    document.getElementById('signaturePlaceholder').style.display = 'none';
+  } else {
+    clearSignatureBox();
+  }
 
   const tbody = document.getElementById('addonRows');
   tbody.innerHTML = '';
@@ -4464,16 +4588,97 @@ function formatDisplayDate(dateObj){
   return dateObj.getDate() + ' ' + months[dateObj.getMonth()] + ' ' + dateObj.getFullYear();
 }
 
+// ---------- Client signature (touch/mouse drawing) ----------
+let currentSignatureData = null;
+let sigCtx = null;
+let sigDrawing = false;
+let sigHasContent = false;
+
+function openSignatureModal(){
+  document.getElementById('signatureModal').classList.remove('hidden');
+  const canvas = document.getElementById('sigCanvas');
+  const rect = canvas.getBoundingClientRect();
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = rect.width * ratio;
+  canvas.height = rect.height * ratio;
+  sigCtx = canvas.getContext('2d');
+  sigCtx.scale(ratio, ratio);
+  sigCtx.lineWidth = 2.2;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+  sigCtx.strokeStyle = '#1c2340';
+  sigHasContent = false;
+
+  canvas.onpointerdown = sigPointerStart;
+  canvas.onpointermove = sigPointerMove;
+  canvas.onpointerup = sigPointerEnd;
+  canvas.onpointerleave = sigPointerEnd;
+  canvas.onpointercancel = sigPointerEnd;
+}
+
+function sigPointerStart(e){
+  sigDrawing = true;
+  sigHasContent = true;
+  const rect = e.target.getBoundingClientRect();
+  sigCtx.beginPath();
+  sigCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  e.preventDefault();
+}
+
+function sigPointerMove(e){
+  if (!sigDrawing) return;
+  const rect = e.target.getBoundingClientRect();
+  sigCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  sigCtx.stroke();
+  e.preventDefault();
+}
+
+function sigPointerEnd(e){
+  sigDrawing = false;
+  if (e) e.preventDefault();
+}
+
+function clearSignature(){
+  const canvas = document.getElementById('sigCanvas');
+  if (sigCtx) sigCtx.clearRect(0, 0, canvas.width, canvas.height);
+  sigHasContent = false;
+}
+
+function closeSignatureModal(){
+  document.getElementById('signatureModal').classList.add('hidden');
+}
+
+function saveSignature(){
+  if (sigHasContent){
+    const canvas = document.getElementById('sigCanvas');
+    const dataUrl = canvas.toDataURL('image/png');
+    currentSignatureData = dataUrl;
+    const img = document.getElementById('signatureImg');
+    img.src = dataUrl;
+    img.style.display = 'block';
+    document.getElementById('signaturePlaceholder').style.display = 'none';
+  }
+  closeSignatureModal();
+}
+
+function clearSignatureBox(){
+  currentSignatureData = null;
+  const img = document.getElementById('signatureImg');
+  img.src = '';
+  img.style.display = 'none';
+  document.getElementById('signaturePlaceholder').style.display = '';
+}
+
 function escapeAttr(str){
   return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
 }
 
 function resetForm(){
   document.getElementById('quoteNo').value = '';
-  document.getElementById('whatsappBtn').style.display = 'none';
-  ['dateIssued','validUntil','underwriter','clientName','civilId','mobile','clientEmail',
+  ['dateIssued','underwriter','clientName','civilId','mobile','clientEmail',
    'policyType','existingPolicyNo','vehicleMake','vehicleModel','vehicleYear','plateNumber',
    'chassisNo','usage','sumInsured','rate','repairLocation','supervisionFee','preparedBy','contactNumber'].forEach(id => setVal(id, ''));
+  clearSignatureBox();
 
   const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
 
@@ -4494,22 +4699,6 @@ function resetForm(){
 }
 
 // ---------- Print / finalize ----------
-// ---------- WhatsApp share ----------
-function shareViaWhatsApp(){
-  if (!currentQuotationId) return;
-  const link = getSiteBaseUrl() + 'view.html?id=' + currentQuotationId;
-  const quoteNo = document.getElementById('quoteNo').value || '';
-  const clientName = document.getElementById('clientName').value || '';
-  const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
-
-  const message = dict.whatsappMessage
-    .replace('{quoteNo}', quoteNo)
-    .replace('{clientName}', clientName)
-    .replace('{link}', link);
-
-  window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
-}
-
 async function handlePrint(){
   if (!currentQuotationId){
     alert('Start a quotation from the Dashboard first.');
@@ -4553,7 +4742,6 @@ async function handlePrint(){
   btn.disabled = false;
   btn.textContent = originalLabel;
 
-  document.getElementById('whatsappBtn').style.display = 'inline-flex';
   await renderQrCode();
   // Give the browser a beat to actually paint the freshly-set image
   // before the print dialog snapshots the page.
