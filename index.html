@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+git add .
+git commit -m "Add mandatory field validation, remove T&C point 4, fix Supervision Fee at 3 KWD"
+git push<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2472,13 +2474,17 @@ var qrcode = function() {
     background: transparent;
     border-radius: 0;
   }
+  .field input.field-error,
+  .field select.field-error{
+    border-bottom: 2px solid #b04a4a;
+    background: #fdf2f2;
+  }
   .field select{
     appearance: none;
     -webkit-appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7086' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 2px center;
-    background-size: 10px 7px;
+    background-position: right 2px center;    background-size: 10px 7px;
     padding-right: 18px;
   }
   .sheet[dir="rtl"] .field select{
@@ -3571,9 +3577,9 @@ var qrcode = function() {
 
       <div class="section-title" data-i18n="secClientDetails">Client Details</div>
       <div class="grid">
-        <div class="field"><label data-i18n="lblClientName">Client Name</label><input type="text" id="clientName" data-i18n-ph="phClientName" placeholder="Full name" /></div>
+        <div class="field"><label data-i18n="lblClientName">Client Name</label><input type="text" id="clientName" data-i18n-ph="phClientName" placeholder="Full name" oninput="this.classList.remove('field-error')" /></div>
         <div class="field"><label data-i18n="lblCivilId">Civil ID</label><input type="text" id="civilId" class="ltr-field" placeholder="XXXXXXXXXXXX" /></div>
-        <div class="field"><label data-i18n="lblMobile">Mobile</label><input type="text" id="mobile" class="ltr-field" placeholder="+965 ..." /></div>
+        <div class="field"><label data-i18n="lblMobile">Mobile</label><input type="text" id="mobile" class="ltr-field" placeholder="+965 ..." oninput="this.classList.remove('field-error')" /></div>
         <div class="field"><label data-i18n="lblEmail">Email</label><input type="text" id="clientEmail" class="ltr-field" placeholder="client@email.com" /></div>
         <div class="field"><label data-i18n="lblPolicyType">Policy Type</label>
           <select id="policyType">
@@ -3587,8 +3593,8 @@ var qrcode = function() {
 
       <div class="section-title" data-i18n="secVehicleDetails">Vehicle Details</div>
       <div class="grid">
-        <div class="field"><label data-i18n="lblMake">Make</label><input type="text" id="vehicleMake" data-i18n-ph="phMake" placeholder="e.g. Toyota" /></div>
-        <div class="field"><label data-i18n="lblModel">Model</label><input type="text" id="vehicleModel" data-i18n-ph="phModel" placeholder="e.g. Land Cruiser" /></div>
+        <div class="field"><label data-i18n="lblMake">Make</label><input type="text" id="vehicleMake" data-i18n-ph="phMake" placeholder="e.g. Toyota" oninput="this.classList.remove('field-error')" /></div>
+        <div class="field"><label data-i18n="lblModel">Model</label><input type="text" id="vehicleModel" data-i18n-ph="phModel" placeholder="e.g. Land Cruiser" oninput="this.classList.remove('field-error')" /></div>
         <div class="field"><label data-i18n="lblYear">Year of Manufacture</label>
           <select id="vehicleYear" class="ltr-field">
             <option value="" disabled selected data-i18n="phYearSelect">Select...</option>
@@ -3639,7 +3645,7 @@ var qrcode = function() {
           <label data-i18n="lblSupervisionFee">Supervision &amp; Issuance Fees</label>
           <div class="value-row">
             <span class="prefix">KWD</span>
-            <input type="number" id="supervisionFee" class="ltr-field" placeholder="0.000" step="0.001" oninput="calc()" />
+            <input type="number" id="supervisionFee" class="ltr-field locked-field" placeholder="0.000" step="0.001" readonly />
           </div>
         </div>
       </div>
@@ -3833,6 +3839,7 @@ const TRANSLATIONS = {
     phUnderwriter: 'Your name',
     secClientDetails: 'Client Details',
     lblClientName: 'Client Name',
+    missingFieldsMessage: 'Please fill in the following before saving as PDF:',
     phClientName: 'Full name',
     lblCivilId: 'Civil ID',
     lblMobile: 'Mobile',
@@ -3919,14 +3926,13 @@ const TRANSLATIONS = {
 `1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
 2. Premium is subject to inspection of the vehicle prior to policy issuance.
 3. Coverage is not bound until premium payment is confirmed and policy is issued.
-4. Rates shown are exclusive of any applicable government fees.
-5. GIG reserves the right to amend terms based on risk assessment findings.
-6. Repair inside the agency.
-7. Deductible: 1% of the vehicle value, on the first claim only, paid once.
-8. No depreciation on spare parts.
-9. Front windshield: replaced once after paying the deductible amount; the second time, the insured bears 50% of the total replacement cost.
-10. Waiver of right of subrogation.
-11. 10% of the vehicle's value, up to a maximum of KWD 1,200 per accident; any amount above this is borne by the insured at 50% of the total. Limited to unknown accidents occurring while the vehicle is parked and unoccupied.`
+4. GIG reserves the right to amend terms based on risk assessment findings.
+5. Repair inside the agency.
+6. Deductible: 1% of the vehicle value, on the first claim only, paid once.
+7. No depreciation on spare parts.
+8. Front windshield: replaced once after paying the deductible amount; the second time, the insured bears 50% of the total replacement cost.
+9. Waiver of right of subrogation.
+10. 10% of the vehicle's value, up to a maximum of KWD 1,200 per accident; any amount above this is borne by the insured at 50% of the total. Limited to unknown accidents occurring while the vehicle is parked and unoccupied.`
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات',
@@ -3939,6 +3945,7 @@ const TRANSLATIONS = {
     phUnderwriter: 'اسمك',
     secClientDetails: 'بيانات العميل',
     lblClientName: 'اسم العميل',
+    missingFieldsMessage: 'يرجى تعبئة الحقول التالية قبل الحفظ كملف PDF:',
     phClientName: 'الاسم الكامل',
     lblCivilId: 'الرقم المدني',
     lblMobile: 'رقم الجوال',
@@ -4025,14 +4032,13 @@ const TRANSLATIONS = {
 `1. هذا العرض صالح لمدة 15 يومًا من تاريخ إصداره وخاضع لموافقة الاكتتاب.
 2. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
 3. لا تُعتبر التغطية سارية حتى تأكيد سداد القسط وإصدار الوثيقة.
-4. الأسعار المعروضة لا تشمل أي رسوم حكومية مطبقة.
-5. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
-6. تصليح داخل الوكالة.
-7. التحمل: 1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.
-8. بدون استهلاك على قطع الغيار.
-9. الزجاج الامامي: تبديل الزجاج الامامي اول مره بعد دفع مبلغ التحمل، ثاني مره يتحمل المؤمن له 50% من اجمالي التبديل.
-10. مع عدم حق الرجوع.
-11. 10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.`
+4. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
+5. تصليح داخل الوكالة.
+6. التحمل: 1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.
+7. بدون استهلاك على قطع الغيار.
+8. الزجاج الامامي: تبديل الزجاج الامامي اول مره بعد دفع مبلغ التحمل، ثاني مره يتحمل المؤمن له 50% من اجمالي التبديل.
+9. مع عدم حق الرجوع.
+10. 10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.`
   }
 };
 
@@ -4381,6 +4387,7 @@ async function startNewQuotation(type){
   // created — today's date, and whichever account is logged in.
   document.getElementById('dateIssued').value = formatDisplayDate(new Date());
   document.getElementById('preparedBy').value = currentUserEmail;
+  document.getElementById('supervisionFee').value = '3';
 
   const { data, error } = await supabaseClient
     .from('quotations')
@@ -4735,7 +4742,32 @@ function resetForm(){
 }
 
 // ---------- Print / finalize ----------
+function getMissingRequiredFields(){
+  const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
+  const checks = [
+    { id: 'clientName', label: dict.lblClientName },
+    { id: 'mobile', label: dict.lblMobile },
+    { id: 'vehicleMake', label: dict.lblMake },
+    { id: 'vehicleModel', label: dict.lblModel }
+  ];
+  const missing = [];
+  checks.forEach(c => {
+    const el = document.getElementById(c.id);
+    const isEmpty = !val(c.id).trim();
+    if (el) el.classList.toggle('field-error', isEmpty);
+    if (isEmpty) missing.push(c.label);
+  });
+  return missing;
+}
+
 async function handlePrint(){
+  const missing = getMissingRequiredFields();
+  if (missing.length){
+    const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
+    alert((dict.missingFieldsMessage || 'Please fill in the following before saving as PDF:') + '\n\n' + missing.join('\n'));
+    return;
+  }
+
   if (!currentQuotationId){
     alert('Start a quotation from the Dashboard first.');
     return;
