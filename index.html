@@ -3843,6 +3843,8 @@ const TRANSLATIONS = {
     secClientDetails: 'Client Details',
     lblClientName: 'Client Name',
     missingFieldsMessage: 'Please fill in the following before saving as PDF:',
+    errMobileFormat: 'must be at least 8 digits',
+    errCivilIdFormat: 'must be exactly 12 digits',
     phClientName: 'Full name',
     lblCivilId: 'Civil ID',
     lblMobile: 'Mobile',
@@ -3949,6 +3951,8 @@ const TRANSLATIONS = {
     secClientDetails: 'بيانات العميل',
     lblClientName: 'اسم العميل',
     missingFieldsMessage: 'يرجى تعبئة الحقول التالية قبل الحفظ كملف PDF:',
+    errMobileFormat: 'يجب أن يكون 8 أرقام على الأقل',
+    errCivilIdFormat: 'يجب أن يكون 12 رقمًا بالضبط',
     phClientName: 'الاسم الكامل',
     lblCivilId: 'الرقم المدني',
     lblMobile: 'رقم الجوال',
@@ -4745,6 +4749,10 @@ function resetForm(){
 }
 
 // ---------- Print / finalize ----------
+function digitsOnly(str){
+  return (str || '').replace(/[^0-9]/g, '');
+}
+
 function getMissingRequiredFields(){
   const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
   const checks = [
@@ -4758,13 +4766,29 @@ function getMissingRequiredFields(){
   const missing = [];
   checks.forEach(c => {
     const el = document.getElementById(c.id);
-    const isEmpty = !val(c.id).trim();
-    if (el){
-      el.classList.toggle('field-error', isEmpty);
-      const boxParent = el.closest('.box');
-      if (boxParent) boxParent.classList.toggle('field-error', isEmpty);
+    const rawVal = val(c.id).trim();
+    let isInvalid = !rawVal;
+    let problemLabel = c.label;
+
+    if (!isInvalid && c.id === 'mobile'){
+      if (digitsOnly(rawVal).length < 8){
+        isInvalid = true;
+        problemLabel = c.label + ' (' + dict.errMobileFormat + ')';
+      }
     }
-    if (isEmpty) missing.push(c.label);
+    if (!isInvalid && c.id === 'civilId'){
+      if (digitsOnly(rawVal).length !== 12){
+        isInvalid = true;
+        problemLabel = c.label + ' (' + dict.errCivilIdFormat + ')';
+      }
+    }
+
+    if (el){
+      el.classList.toggle('field-error', isInvalid);
+      const boxParent = el.closest('.box');
+      if (boxParent) boxParent.classList.toggle('field-error', isInvalid);
+    }
+    if (isInvalid) missing.push(problemLabel);
   });
   return missing;
 }
