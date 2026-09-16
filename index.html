@@ -3581,7 +3581,7 @@ var qrcode = function() {
       <div class="section-title" data-i18n="secClientDetails">Client Details</div>
       <div class="grid">
         <div class="field"><label data-i18n="lblClientName">Client Name</label><input type="text" id="clientName" data-i18n-ph="phClientName" placeholder="Full name" oninput="this.classList.remove('field-error')" /></div>
-        <div class="field"><label data-i18n="lblCivilId">Civil ID</label><input type="text" id="civilId" class="ltr-field" placeholder="XXXXXXXXXXXX" /></div>
+        <div class="field"><label data-i18n="lblCivilId">Civil ID</label><input type="text" id="civilId" class="ltr-field" placeholder="XXXXXXXXXXXX" oninput="this.classList.remove('field-error')" /></div>
         <div class="field"><label data-i18n="lblMobile">Mobile</label><input type="text" id="mobile" class="ltr-field" placeholder="+965 ..." oninput="this.classList.remove('field-error')" /></div>
         <div class="field"><label data-i18n="lblEmail">Email</label><input type="text" id="clientEmail" class="ltr-field" placeholder="client@email.com" /></div>
         <div class="field"><label data-i18n="lblPolicyType">Policy Type</label>
@@ -4749,6 +4749,7 @@ function getMissingRequiredFields(){
   const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
   const checks = [
     { id: 'clientName', label: dict.lblClientName },
+    { id: 'civilId', label: dict.lblCivilId },
     { id: 'mobile', label: dict.lblMobile },
     { id: 'vehicleMake', label: dict.lblMake },
     { id: 'vehicleModel', label: dict.lblModel },
