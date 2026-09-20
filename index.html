@@ -3721,7 +3721,7 @@ var qrcode = function() {
       <div class="section-title" data-i18n="secTerms">Terms &amp; Conditions</div>
       <div class="terms">
         <label data-i18n="lblTermsNotes">Notes for the client</label>
-        <div id="terms" class="terms-editable">1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
+        <div id="terms" class="terms-editable">1. This quotation is valid for 4 months from the date of issue and is subject to underwriting approval.
 2. Premium is subject to inspection of the vehicle prior to policy issuance.
 3. Coverage is not bound until premium payment is confirmed and policy is issued.
 4. Rates shown are exclusive of any applicable government fees.
@@ -3902,9 +3902,9 @@ const TRANSLATIONS = {
     atKnownDepreciationDefault: 'No depreciation',
     atKnownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
     atKnownRimsGlassDefault: 'No deductible',
-    atKnownTotalLossDefault: '50%',
+    atKnownTotalLossDefault: '0–3 months: 5%\n4–6 months: 10%\n7–9 months: 15%\n10–12 months: 20%\nFire: 25%',
     atUnknownDefinitionDefault: 'All accidents where there is no second party, as stated in the police report.',
-    atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,200 per accident. Any amount above this is borne by the insured at 50% of the total. Limited to incidents occurring while the vehicle is parked and unoccupied.',
+    atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,250 per accident. Any amount above this is borne by the insured at 25% of the total repair cost, whether the vehicle was fully stationary or moving.',
     atUnknownDeductibleDefault: '1% of the vehicle value, on the first claim only, paid once.',
     atUnknownDepreciationDefault: 'No depreciation on replaced spare parts for the first five years from the vehicle\u2019s manufacture date.',
     atUnknownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
@@ -3928,7 +3928,7 @@ const TRANSLATIONS = {
     qrCaption: 'Scan to view this quotation online',
     qrInfoText: 'This QR code contains the general terms of the policy and is an integral part of this offer.',
     defaultTerms:
-`1. This quotation is valid for 15 days from the date of issue and is subject to underwriting approval.
+`1. This quotation is valid for 4 months from the date of issue and is subject to underwriting approval.
 2. Premium is subject to inspection of the vehicle prior to policy issuance.
 3. Coverage is not bound until premium payment is confirmed and policy is issued.
 4. GIG reserves the right to amend terms based on risk assessment findings.
@@ -3937,7 +3937,7 @@ const TRANSLATIONS = {
 7. No depreciation on spare parts.
 8. Front windshield: replaced once after paying the deductible amount; the second time, the insured bears 50% of the total replacement cost.
 9. Waiver of right of subrogation.
-10. 10% of the vehicle's value, up to a maximum of KWD 1,200 per accident; any amount above this is borne by the insured at 50% of the total. Limited to unknown accidents occurring while the vehicle is parked and unoccupied.`
+10. 10% of the vehicle's value, up to a maximum of KWD 1,250 per accident; any amount above this is borne by the insured at 25% of the total repair cost, whether the vehicle was fully stationary or moving.`
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات',
@@ -4010,9 +4010,9 @@ const TRANSLATIONS = {
     atKnownDepreciationDefault: 'بدون استهلاك',
     atKnownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
     atKnownRimsGlassDefault: 'بدون تحمل',
-    atKnownTotalLossDefault: '50%',
+    atKnownTotalLossDefault: '0-3 أشهر: 5%\n4-6 أشهر: 10%\n7-9 أشهر: 15%\n10-12 شهر: 20%\nحريق: 25%',
     atUnknownDefinitionDefault: 'جميع الحوادث التي لا يوجد بها طرف ثاني كما هو بتقرير المخفر.',
-    atUnknownCoverageDefault: '10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.',
+    atUnknownCoverageDefault: '10% من قيمة المركبة وبحد اقصى 1,250 د.ك لكل حادث وما زاد عن ذلك يتحمل المؤمن له 25% من اجمالي التصليح سواء كانت المركبه في حال توقف تام او متحركه.',
     atUnknownDeductibleDefault: '1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.',
     atUnknownDepreciationDefault: 'بدون استهلاك على قطع الغيار المستبدلة لأول خمس سنوات من صنع المركبة.',
     atUnknownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
@@ -4036,7 +4036,7 @@ const TRANSLATIONS = {
     qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
     qrInfoText: 'هذا الـQR كود يحتوي على الشروط العامة من الوثيقة وهو جزء لا يتجزأ من هذا العرض.',
     defaultTerms:
-`1. هذا العرض صالح لمدة 15 يومًا من تاريخ إصداره وخاضع لموافقة الاكتتاب.
+`1. هذا العرض صالح لمدة 4 أشهر من تاريخ إصداره وخاضع لموافقة الاكتتاب.
 2. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
 3. لا تُعتبر التغطية سارية حتى تأكيد سداد القسط وإصدار الوثيقة.
 4. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
@@ -4045,7 +4045,7 @@ const TRANSLATIONS = {
 7. بدون استهلاك على قطع الغيار.
 8. الزجاج الامامي: تبديل الزجاج الامامي اول مره بعد دفع مبلغ التحمل، ثاني مره يتحمل المؤمن له 50% من اجمالي التبديل.
 9. مع عدم حق الرجوع.
-10. 10% من قيمة المركبة وبحد أقصى 1,200 د.ك لكل حادث، وما زاد عن ذلك يتحمله المؤمن له بنسبة 50% من الإجمالي. تقتصر على الحوادث المجهولة أثناء توقف السيارة وعدم وجود شخص بداخلها.`
+10. 10% من قيمة المركبة وبحد اقصى 1,250 د.ك لكل حادث وما زاد عن ذلك يتحمل المؤمن له 25% من اجمالي التصليح سواء كانت المركبه في حال توقف تام او متحركه.`
   }
 };
 
