@@ -4868,10 +4868,18 @@ function recalcTotal(){
   calc();
 }
 
+const MIN_PREMIUM = 200;
+const MIN_PREMIUM_THRESHOLD = 8000; // below this Sum Insured, premium is fixed at MIN_PREMIUM regardless of rate
+
 function calc(){
   const sumInsured = parseFloat(document.getElementById('sumInsured').value) || 0;
   const rate = parseFloat(document.getElementById('rate').value) || 0;
-  const basePremium = sumInsured * (rate/100);
+  let basePremium = sumInsured * (rate/100);
+  // Minimum premium rule: any vehicle with Sum Insured below the threshold
+  // is charged the fixed minimum premium instead of the rate-based amount.
+  if (sumInsured > 0 && sumInsured < MIN_PREMIUM_THRESHOLD) {
+    basePremium = MIN_PREMIUM;
+  }
   document.getElementById('basePremium').value = basePremium.toFixed(3);
 
   // Percentage-based catalog add-ons (War, Geographical Extension) stay in
