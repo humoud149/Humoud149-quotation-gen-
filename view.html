@@ -308,17 +308,24 @@ const T = {
   en: {
     appTitle: 'Motor Insurance Quotation', appSubtitle: 'Gulf Insurance Group — Kuwait',
     lblQuoteNo: 'Quotation No.', lblDateIssued: 'Date Issued', lblValidUntil: 'Valid Until', lblUnderwriter: 'Underwriter',
-    secClientDetails: 'Client Details', lblClientName: 'Client Name', lblCivilId: 'Civil ID', lblMobile: 'Mobile',
+    secClientDetails: 'Client Details', secInsuredDetails: 'Insured Details',
+    lblClientName: 'Client Name', lblInsuredName: 'Insured Name (Company)', lblCrNumber: 'C.R. Number',
+    lblCivilId: 'Civil ID', lblMobile: 'Mobile',
     lblEmail: 'Email', lblPolicyType: 'Policy Type', lblExistingPolicy: 'Existing Policy No. (if renewal)',
-    secVehicleDetails: 'Vehicle Details', lblMake: 'Make', lblModel: 'Model', lblYear: 'Year of Manufacture',
+    secVehicleDetails: 'Vehicle Details', secFleetDetails: 'Fleet Details',
+    lblMake: 'Make', lblModel: 'Model', lblYear: 'Year of Manufacture',
     lblPlate: 'Plate Number', lblChassis: 'Chassis No.', lblUsage: 'Usage',
+    lblFleetCount: 'Number of Vehicles', lblFleetTypes: 'Vehicle Types', lblPolicyPeriod: 'Period of Insurance',
+    lblMinPremiumPerVehicle: 'Minimum Premium per Vehicle',
     secCoverage: 'Coverage & Premium', lblSumInsured: 'Sum Insured', lblRate: 'Rate', lblBasePremium: 'Base Premium',
-    lblRepairLocation: 'Repair Location', lblSupervisionFee: 'Supervision & Issuance Fees',
+    lblRepairLocation: 'Repair Location', lblSupervisionFee: 'Supervision & Issuance Fees', lblIssuanceFee: 'Issuance Fee',
     optInsideAgency: 'Inside Agency', optOutsideAgency: 'Outside Agency',
     secAccidentTerms: 'Accident Terms', atGroupKnown: 'Known Accident', atGroupUnknown: 'Unknown Accident',
     atLabelDefinition: 'Definition', atLabelCoverage: 'Coverage', atLabelDeductible: 'Deductible',
     atLabelDepreciation: 'Depreciation Rate', atLabelWindshield: 'Front Windshield',
     atLabelRimsGlass: 'Rims, Tires, Wheels, Panoramic Sunroof, Front & Rear Cameras, Radars, Underbody Damage & Accessories', atLabelTotalLoss: 'Total Loss Depreciation',
+    atLabelFireTheft: 'Fire & Theft Deductible', atLabelOffRoad: 'Off-Road Accidents',
+    secExclusions: 'Exclusions', secGeneralExclusions: 'General Exclusions (Known & Unknown Accident)', secSpecialConditions: 'Special Conditions',
     addonHeaderName: 'Add-on / Benefit', addonHeaderAmount: 'Amount (KWD)', addonSubtotalLabel: 'Add-ons Subtotal: KWD',
     lblTotalPremium: 'Total Premium', secTerms: 'Terms & Conditions',
     lblPreparedBy: 'Prepared By', lblContactNumber: 'Contact Number', lblClientSignature: 'Client Signature',
@@ -328,17 +335,24 @@ const T = {
   ar: {
     appTitle: 'عرض سعر تأمين المركبات', appSubtitle: 'مجموعة الخليج للتأمين — الكويت',
     lblQuoteNo: 'رقم العرض', lblDateIssued: 'تاريخ الإصدار', lblValidUntil: 'صالح حتى', lblUnderwriter: 'المكتتب',
-    secClientDetails: 'بيانات العميل', lblClientName: 'اسم العميل', lblCivilId: 'الرقم المدني', lblMobile: 'رقم الجوال',
+    secClientDetails: 'بيانات العميل', secInsuredDetails: 'بيانات المؤمن له',
+    lblClientName: 'اسم العميل', lblInsuredName: 'اسم المؤمن له (الشركة)', lblCrNumber: 'رقم السجل التجاري',
+    lblCivilId: 'الرقم المدني', lblMobile: 'رقم الجوال',
     lblEmail: 'البريد الإلكتروني', lblPolicyType: 'نوع الوثيقة', lblExistingPolicy: 'رقم الوثيقة الحالية (إن وجد التجديد)',
-    secVehicleDetails: 'بيانات المركبة', lblMake: 'الصنع', lblModel: 'الموديل', lblYear: 'سنة الصنع',
+    secVehicleDetails: 'بيانات المركبة', secFleetDetails: 'بيانات الأسطول',
+    lblMake: 'الصنع', lblModel: 'الموديل', lblYear: 'سنة الصنع',
     lblPlate: 'رقم اللوحة', lblChassis: 'رقم الهيكل', lblUsage: 'الاستخدام',
+    lblFleetCount: 'عدد المركبات', lblFleetTypes: 'أنواع المركبات', lblPolicyPeriod: 'مدة التأمين',
+    lblMinPremiumPerVehicle: 'الحد الأدنى للقسط لكل مركبة',
     secCoverage: 'التغطية وقسط التأمين', lblSumInsured: 'مبلغ التأمين', lblRate: 'النسبة', lblBasePremium: 'القسط الأساسي',
-    lblRepairLocation: 'مكان التصليح', lblSupervisionFee: 'رسوم الرقابة والإشراف + الإصدار',
+    lblRepairLocation: 'مكان التصليح', lblSupervisionFee: 'رسوم الرقابة والإشراف + الإصدار', lblIssuanceFee: 'رسوم الإصدار',
     optInsideAgency: 'داخل الوكالة', optOutsideAgency: 'خارج الوكالة',
     secAccidentTerms: 'شروط الحوادث', atGroupKnown: 'الحادث المعلوم', atGroupUnknown: 'الحادث المجهول',
     atLabelDefinition: 'تعريف', atLabelCoverage: 'التغطية', atLabelDeductible: 'مبلغ التحمل',
     atLabelDepreciation: 'نسبة الاستهلاك', atLabelWindshield: 'الزجاج الامامي',
     atLabelRimsGlass: 'الرنجات والتواير ،والاطارات، وفتحة السقف البانوراما ، والكاميرات الأمامية والخلفية ، والرادارات ، والأضرار السفليه وملاحقها', atLabelTotalLoss: 'نسبة استهلاك الخسارة الكلية',
+    atLabelFireTheft: 'تحمل الحريق والسرقة', atLabelOffRoad: 'حوادث خارج الطريق',
+    secExclusions: 'الاستثناءات', secGeneralExclusions: 'الاستثناءات العامة (الحادث المعلوم والمجهول)', secSpecialConditions: 'شروط خاصة',
     addonHeaderName: 'الإضافات / المزايا', addonHeaderAmount: 'المبلغ (د.ك)', addonSubtotalLabel: 'إجمالي الإضافات: د.ك',
     lblTotalPremium: 'إجمالي القسط', secTerms: 'الشروط والأحكام',
     lblPreparedBy: 'أُعد بواسطة', lblContactNumber: 'رقم التواصل', lblClientSignature: 'توقيع العميل',
@@ -396,6 +410,13 @@ async function loadQuotation(){
     return `<tr><td class="at-label">${esc(label)}</td><td class="at-value">${esc(value || '—')}</td></tr>`;
   }
   const at = d.accidentTerms || {};
+  const isCorp = row.quote_type === 'corporate';
+  const corpBlocks = d.corpTextBlocks || {};
+  function textBlock(label, value){
+    return `
+        <div class="section-title">${esc(label)}</div>
+        <div class="terms-box">${esc(value || '—')}</div>`;
+  }
 
   content.innerHTML = `
     <div class="sheet" dir="${dir}">
@@ -414,24 +435,31 @@ async function loadQuotation(){
       </div>
 
       <div class="body-pad">
-        <div class="section-title">${esc(t.secClientDetails)}</div>
+        <div class="section-title">${esc(isCorp ? t.secInsuredDetails : t.secClientDetails)}</div>
         <div class="grid">
-          ${field(t.lblClientName, d.clientName)}
-          ${field(t.lblCivilId, d.civilId, true)}
+          ${field(isCorp ? t.lblInsuredName : t.lblClientName, d.clientName)}
+          ${isCorp ? field(t.lblCrNumber, d.crNumber, true) : field(t.lblCivilId, d.civilId, true)}
           ${field(t.lblMobile, d.mobile, true)}
           ${field(t.lblEmail, d.clientEmail, true)}
           ${field(t.lblPolicyType, d.policyType)}
           ${field(t.lblExistingPolicy, d.existingPolicyNo, true)}
         </div>
 
-        <div class="section-title">${esc(t.secVehicleDetails)}</div>
+        <div class="section-title">${esc(isCorp ? t.secFleetDetails : t.secVehicleDetails)}</div>
         <div class="grid">
+          ${isCorp ? `
+          ${field(t.lblFleetCount, d.fleetVehicleCount, true)}
+          ${field(t.lblFleetTypes, d.fleetVehicleTypes)}
+          ${field(t.lblPolicyPeriod, d.policyPeriod)}
+          ${field(t.lblMinPremiumPerVehicle, d.minPremiumPerVehicle, true)}
+          ` : `
           ${field(t.lblMake, d.vehicleMake)}
           ${field(t.lblModel, d.vehicleModel)}
           ${field(t.lblYear, d.vehicleYear, true)}
           ${field(t.lblPlate, d.plateNumber, true)}
           ${field(t.lblChassis, d.chassisNo, true)}
           ${field(t.lblUsage, d.usage)}
+          `}
         </div>
 
         <div class="cov-head">
@@ -445,7 +473,7 @@ async function loadQuotation(){
 
         <div class="coverage-grid" style="grid-template-columns: 1fr 1fr;">
           <div class="box"><label>${esc(t.lblRepairLocation)}</label><div class="value" style="font-size:15px;">${esc(repairLocationLabel)}</div></div>
-          <div class="box"><label>${esc(t.lblSupervisionFee)}</label><div class="value ltr-field">KWD ${esc(d.supervisionFee || '0.000')}</div></div>
+          <div class="box"><label>${esc(isCorp ? t.lblIssuanceFee : t.lblSupervisionFee)}</label><div class="value ltr-field">KWD ${esc(d.supervisionFee || '0.000')}</div></div>
         </div>
 
         <div class="addons">
@@ -488,9 +516,15 @@ async function loadQuotation(){
             ${atRow(t.atLabelDepreciation, at.atUnknownDepreciation)}
             ${atRow(t.atLabelWindshield, at.atUnknownWindshield)}
             ${atRow(t.atLabelRimsGlass, at.atUnknownRimsGlass)}
+            ${isCorp ? atRow(t.atLabelFireTheft, at.atUnknownFireTheft) : ''}
             ${atRow(t.atLabelTotalLoss, at.atUnknownTotalLoss)}
+            ${isCorp ? atRow(t.atLabelOffRoad, at.atUnknownOffRoad) : ''}
         </table>
         <div style="margin-bottom:22px;"></div>
+
+        ${isCorp ? textBlock(t.secExclusions, corpBlocks.exclusions) : ''}
+        ${isCorp ? textBlock(t.secGeneralExclusions, corpBlocks.generalExclusions) : ''}
+        ${isCorp ? textBlock(t.secSpecialConditions, corpBlocks.specialConditions) : ''}
 
         <div class="section-title">${esc(t.secTerms)}</div>
         <div class="terms-box">${esc(d.terms)}</div>
@@ -513,6 +547,7 @@ async function loadQuotation(){
           <span class="note">${esc(t.footerNote)}</span>
         </div>
 
+        ${isCorp ? '' : `
         <div class="ref-page" dir="rtl">
           <div class="section-title" style="margin-top:0;">استثناءات من التغطية</div>
           <p class="ref-subnote">للحادث المعلوم والمجهول</p>
@@ -550,6 +585,7 @@ async function loadQuotation(){
             </tbody>
           </table>
         </div>
+      `}
       </div>
     </div>
   `;
