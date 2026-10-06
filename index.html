@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>GIG Motor Insurance Quotation</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="xlsx.full.min.js"></script>
 <script>
 /* qrcode-generator by Kazuhiko Arase, MIT license — inlined so QR
    codes work even on networks that block external CDNs. */
@@ -3326,6 +3327,26 @@ var qrcode = function() {
   #quoteSheet.type-corporate .signature-row{ display: none; }
   .corp-section{ margin-top: 22px; }
   .corp-section .terms-editable{ margin-top: 6px; }
+  .fleet-upload-box{
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: #fbf8f2;
+    border: 1px dashed var(--gold);
+    border-radius: 6px;
+  }
+  .fleet-upload-box .fu-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .fleet-upload-box input[type="file"]{ font-size: 12px; max-width: 230px; }
+  .fleet-upload-box .fu-summary{
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .fleet-upload-box .fu-summary strong{ color: var(--navy); }
+  .fleet-upload-box .fu-error{ color: #b02a2a; font-size:12px; margin-top:6px; }
+  .fleet-upload-box .fu-hint{ font-size: 11px; color: var(--muted); margin-top:4px; }
   .at-value[contenteditable="true"]{ cursor:text; }
   .at-value[contenteditable="true"]:focus{
     outline: 1.5px solid var(--gold);
@@ -3636,8 +3657,19 @@ var qrcode = function() {
         <div class="field"><label data-i18n="lblFleetTypes">Vehicle Types</label><input type="text" id="fleetVehicleTypes" data-i18n-ph="phFleetTypes" placeholder="e.g. Sedans, SUVs, light commercial" /></div>
         <div class="field"><label data-i18n="lblPolicyPeriod">Period of Insurance</label><input type="text" id="policyPeriod" value="12 months" /></div>
         <div class="field"><label data-i18n="lblMinPremiumPerVehicle">Minimum Premium per Vehicle</label>
-          <div class="value-row"><span class="prefix">KWD</span><input type="number" id="minPremiumPerVehicle" class="ltr-field" step="0.001" /></div>
+          <div class="value-row"><span class="prefix">KWD</span><input type="number" id="minPremiumPerVehicle" class="ltr-field" step="0.001" oninput="calc()" /></div>
         </div>
+      </div>
+
+      <div class="corp-only fleet-upload-box no-print" id="fleetUploadBox">
+        <div class="fu-row">
+          <input type="file" id="fleetFileInput" accept=".xlsx,.xls,.csv" onchange="handleFleetFileUpload(this)" />
+          <button type="button" class="mini-btn" onclick="downloadFleetTemplate()" data-i18n="btnFleetTemplate">&#8595; Download Template</button>
+          <button type="button" class="mini-btn" id="fleetClearBtn" style="display:none" onclick="clearFleetUpload()" data-i18n="btnFleetClear">Clear Upload</button>
+        </div>
+        <div class="fu-hint" data-i18n="fleetUploadHint">Upload an Excel/CSV with one row per vehicle and a Sum Insured column. We'll calculate each vehicle's premium against the minimum above and total it automatically.</div>
+        <div class="fu-summary" id="fleetUploadSummary"></div>
+        <div class="fu-error" id="fleetUploadError"></div>
       </div>
 
       <div class="cov-head">
@@ -3922,6 +3954,17 @@ const TRANSLATIONS = {
     phFleetTypes: 'e.g. Sedans, SUVs, light commercial',
     lblPolicyPeriod: 'Period of Insurance',
     lblMinPremiumPerVehicle: 'Minimum Premium per Vehicle',
+    btnFleetTemplate: '↓ Download Template',
+    btnFleetClear: 'Clear Upload',
+    fleetUploadHint: 'Upload an Excel/CSV with one row per vehicle and a Sum Insured column. We’ll calculate each vehicle’s premium against the minimum above and total it automatically.',
+    fleetUploadErrNoColumn: 'Couldn’t find a Sum Insured column. Please use the template.',
+    fleetUploadErrEmpty: 'No vehicle rows found in that file.',
+    fleetUploadErrParse: 'Couldn’t read that file. Please upload a valid Excel or CSV file.',
+    fleetSummaryVehicles: 'Vehicles uploaded',
+    fleetSummaryAtMin: 'Priced at minimum',
+    fleetSummaryAtRate: 'Priced on rate',
+    fleetSummaryTotalSI: 'Total Sum Insured',
+    fleetSummaryTotalPremium: 'Total calculated Premium',
     lblMake: 'Make',
     phMake: 'e.g. Toyota',
     lblModel: 'Model',
@@ -4082,6 +4125,17 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     phFleetTypes: 'مثال: سيارات صالون، دفع رباعي، تجاري خفيف',
     lblPolicyPeriod: 'مدة التأمين',
     lblMinPremiumPerVehicle: 'الحد الأدنى للقسط لكل مركبة',
+    btnFleetTemplate: '↓ تحميل النموذج',
+    btnFleetClear: 'إلغاء الملف المرفوع',
+    fleetUploadHint: 'قم بتحميل ملف إكسل أو CSV يحتوي على صف لكل مركبة وعمود لقيمة التأمين. سنقوم بحساب قسط كل مركبة بناءً على الحد الأدنى أعلاه وجمع الإجمالي تلقائياً.',
+    fleetUploadErrNoColumn: 'لم يتم العثور على عمود لقيمة التأمين. يرجى استخدام النموذج المرفق.',
+    fleetUploadErrEmpty: 'لا توجد صفوف مركبات في هذا الملف.',
+    fleetUploadErrParse: 'تعذر قراءة هذا الملف. يرجى تحميل ملف إكسل أو CSV صالح.',
+    fleetSummaryVehicles: 'عدد المركبات المرفوعة',
+    fleetSummaryAtMin: 'بالحد الأدنى',
+    fleetSummaryAtRate: 'بالمعدل المحدد',
+    fleetSummaryTotalSI: 'إجمالي قيمة التأمين',
+    fleetSummaryTotalPremium: 'إجمالي القسط المحسوب',
     lblMake: 'الصنع',
     phMake: 'مثال: تويوتا',
     lblModel: 'الموديل',
@@ -4718,6 +4772,7 @@ function collectFormData(){
     fleetVehicleTypes: val('fleetVehicleTypes'),
     policyPeriod: val('policyPeriod'),
     minPremiumPerVehicle: val('minPremiumPerVehicle'),
+    fleetVehicles: fleetVehicles,
     sumInsured: val('sumInsured'),
     rate: val('rate'),
     basePremium: val('basePremium'),
@@ -4765,8 +4820,12 @@ function populateFormData(d){
   setVal('fleetVehicleTypes', d.fleetVehicleTypes);
   setVal('policyPeriod', d.policyPeriod);
   setVal('minPremiumPerVehicle', d.minPremiumPerVehicle);
-  setVal('sumInsured', d.sumInsured);
   setVal('rate', d.rate);
+  if (d.fleetVehicles && d.fleetVehicles.length){
+    applyFleetVehicles(d.fleetVehicles.map(Number));
+  } else {
+    setVal('sumInsured', d.sumInsured);
+  }
   setVal('repairLocation', d.repairLocation);
   setVal('supervisionFee', d.supervisionFee);
   setVal('preparedBy', d.preparedBy);
@@ -4919,6 +4978,16 @@ function resetForm(){
    'sumInsured','rate','repairLocation','supervisionFee','preparedBy','contactNumber'].forEach(id => setVal(id, ''));
   setVal('policyPeriod', '12 months');
   clearSignatureBox();
+  fleetVehicles = [];
+  showFleetUploadError('');
+  const fleetSummaryEl = document.getElementById('fleetUploadSummary');
+  if (fleetSummaryEl) fleetSummaryEl.innerHTML = '';
+  const fleetFileInput = document.getElementById('fleetFileInput');
+  if (fleetFileInput) fleetFileInput.value = '';
+  const sumInsuredField = document.getElementById('sumInsured');
+  if (sumInsuredField) sumInsuredField.readOnly = false;
+  const fleetClearBtn = document.getElementById('fleetClearBtn');
+  if (fleetClearBtn) fleetClearBtn.style.display = 'none';
 
   const dict = TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
   const isCorp = selectedQuoteType === 'corporate';
@@ -5085,17 +5154,45 @@ function recalcTotal(){
 const MIN_PREMIUM = 200;
 const MIN_PREMIUM_THRESHOLD = 8000; // below this Sum Insured, premium is fixed at MIN_PREMIUM regardless of rate
 
+// Per-vehicle Sum Insured figures uploaded for a Corporate/Fleet quotation.
+// Empty when no file has been uploaded (or it's been cleared) — in that
+// case Corporate falls back to the flat Sum Insured x Rate calculation.
+// This drives the premium math only; it is never printed as an itemized
+// table on the quotation itself.
+let fleetVehicles = [];
+
 function calc(){
   const isCorp = selectedQuoteType === 'corporate';
-  const sumInsured = parseFloat(document.getElementById('sumInsured').value) || 0;
   const rate = parseFloat(document.getElementById('rate').value) || 0;
-  let basePremium = sumInsured * (rate/100);
-  // Minimum premium rule (Individual only): any vehicle with Sum Insured
-  // below the threshold is charged the fixed minimum premium instead of
-  // the rate-based amount. Corporate fleets use their own per-vehicle
-  // minimum premium field instead — this flat rule doesn't apply to them.
-  if (!isCorp && sumInsured > 0 && sumInsured < MIN_PREMIUM_THRESHOLD) {
-    basePremium = MIN_PREMIUM;
+  let sumInsured = parseFloat(document.getElementById('sumInsured').value) || 0;
+  let basePremium;
+
+  if (isCorp && fleetVehicles.length){
+    // Fleet upload drives the numbers: each vehicle is priced at
+    // max(sumInsured x rate/100, minimum premium per vehicle), then
+    // totaled. Sum Insured is re-derived as the sum of the uploaded
+    // per-vehicle values so the rest of the form (and the printed
+    // quotation) stays in sync with what was uploaded.
+    const minPerVehicle = parseFloat(document.getElementById('minPremiumPerVehicle').value) || 0;
+    let totalSI = 0, totalPremium = 0;
+    fleetVehicles.forEach(si => {
+      totalSI += si;
+      totalPremium += Math.max(si * (rate/100), minPerVehicle);
+    });
+    sumInsured = totalSI;
+    basePremium = totalPremium;
+    const siField = document.getElementById('sumInsured');
+    siField.value = sumInsured.toFixed(3);
+    renderFleetUploadSummary(rate, minPerVehicle);
+  } else {
+    basePremium = sumInsured * (rate/100);
+    // Minimum premium rule (Individual only): any vehicle with Sum Insured
+    // below the threshold is charged the fixed minimum premium instead of
+    // the rate-based amount. Corporate fleets use their own per-vehicle
+    // minimum premium field instead — this flat rule doesn't apply to them.
+    if (!isCorp && sumInsured > 0 && sumInsured < MIN_PREMIUM_THRESHOLD) {
+      basePremium = MIN_PREMIUM;
+    }
   }
   document.getElementById('basePremium').value = basePremium.toFixed(3);
 
@@ -5133,6 +5230,129 @@ function calc(){
     const total = basePremium + addonTotal + supervisionFee;
     document.getElementById('totalPremium').value = total.toFixed(3);
   }
+}
+
+// ---------- Fleet Excel/CSV upload (Corporate premium calculation) ----------
+
+function fleetDict(){
+  return TRANSLATIONS[selectedLanguage] || TRANSLATIONS.en;
+}
+
+function showFleetUploadError(msg){
+  const el = document.getElementById('fleetUploadError');
+  if (el) el.innerText = msg || '';
+}
+
+function findSumInsuredColumn(headerRow){
+  // Accepts a variety of header spellings: "Sum Insured", "SI",
+  // "Sum Insured (KWD)", "sum_insured", etc. Matches case-insensitively
+  // against a normalized (letters/digits only) version of each header.
+  const normalize = s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (let i = 0; i < headerRow.length; i++){
+    const norm = normalize(headerRow[i]);
+    if (!norm) continue;
+    if (norm.includes('suminsured') || norm === 'si' || norm.includes('insuredvalue') || norm.includes('vehiclevalue')) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function handleFleetFileUpload(input){
+  const file = input.files && input.files[0];
+  if (!file) return;
+  showFleetUploadError('');
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, blankrows: false });
+      if (!rows || !rows.length){
+        showFleetUploadError(fleetDict().fleetUploadErrEmpty);
+        return;
+      }
+      const headerRow = rows[0];
+      const colIdx = findSumInsuredColumn(headerRow);
+      if (colIdx === -1){
+        showFleetUploadError(fleetDict().fleetUploadErrNoColumn);
+        return;
+      }
+      const values = [];
+      for (let r = 1; r < rows.length; r++){
+        const raw = rows[r][colIdx];
+        const num = parseFloat(raw);
+        if (!isNaN(num) && num > 0) values.push(num);
+      }
+      if (!values.length){
+        showFleetUploadError(fleetDict().fleetUploadErrEmpty);
+        return;
+      }
+      applyFleetVehicles(values);
+    } catch (err) {
+      showFleetUploadError(fleetDict().fleetUploadErrParse);
+    }
+  };
+  reader.onerror = function(){
+    showFleetUploadError(fleetDict().fleetUploadErrParse);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function applyFleetVehicles(values){
+  fleetVehicles = values;
+  setVal('fleetVehicleCount', values.length);
+  const siField = document.getElementById('sumInsured');
+  if (siField) siField.readOnly = true;
+  const clearBtn = document.getElementById('fleetClearBtn');
+  if (clearBtn) clearBtn.style.display = '';
+  calc();
+}
+
+function clearFleetUpload(){
+  fleetVehicles = [];
+  showFleetUploadError('');
+  const summaryEl = document.getElementById('fleetUploadSummary');
+  if (summaryEl) summaryEl.innerHTML = '';
+  const fileInput = document.getElementById('fleetFileInput');
+  if (fileInput) fileInput.value = '';
+  const siField = document.getElementById('sumInsured');
+  if (siField) siField.readOnly = false;
+  const clearBtn = document.getElementById('fleetClearBtn');
+  if (clearBtn) clearBtn.style.display = 'none';
+  calc();
+}
+
+function renderFleetUploadSummary(rate, minPerVehicle){
+  const summaryEl = document.getElementById('fleetUploadSummary');
+  if (!summaryEl) return;
+  const dict = fleetDict();
+  let atMin = 0, totalSI = 0, totalPremium = 0;
+  fleetVehicles.forEach(si => {
+    const raw = si * (rate/100);
+    const premium = Math.max(raw, minPerVehicle);
+    if (premium > raw) atMin++;
+    totalSI += si;
+    totalPremium += premium;
+  });
+  const atRate = fleetVehicles.length - atMin;
+  summaryEl.innerHTML =
+    `<strong>${fleetVehicles.length}</strong> ${dict.fleetSummaryVehicles} &mdash; ` +
+    `<strong>${atMin}</strong> ${dict.fleetSummaryAtMin}, ` +
+    `<strong>${atRate}</strong> ${dict.fleetSummaryAtRate}<br>` +
+    `${dict.fleetSummaryTotalSI}: <strong>KWD ${totalSI.toFixed(3)}</strong> &nbsp;&middot;&nbsp; ` +
+    `${dict.fleetSummaryTotalPremium}: <strong>KWD ${totalPremium.toFixed(3)}</strong>`;
+}
+
+function downloadFleetTemplate(){
+  const header = ['Vehicle No.', 'Plate Number', 'Make', 'Model', 'Sum Insured'];
+  const example = ['1', 'KWT 12345', 'Toyota', 'Camry', 5000];
+  const ws = XLSX.utils.aoa_to_sheet([header, example]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Fleet');
+  XLSX.writeFile(wb, 'fleet_upload_template.xlsx');
 }
 
 function removeRow(btn){
