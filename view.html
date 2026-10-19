@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GIG Motor Insurance Quotation</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-js-2.118.0.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Cairo:wght@500;600;700;800&display=swap');
 
@@ -361,6 +361,13 @@ const T = {
   }
 };
 
+// Only allow genuine base64 PNG/JPEG data URLs in an <img src>. Anything else
+// (quotes, markup, other schemes) is dropped so stored data can never break
+// out of the attribute.
+function safeImageSrc(v){
+  return (typeof v === 'string' && /^data:image\/(png|jpeg);base64,[A-Za-z0-9+\/=]+$/.test(v)) ? v : '';
+}
+
 function esc(s){
   const d = document.createElement('div');
   d.textContent = (s === undefined || s === null) ? '' : s;
@@ -538,7 +545,7 @@ async function loadQuotation(){
         <div class="signature-row">
           <div class="signature-wrap">
             <label>${esc(t.lblClientSignature)}</label>
-            <div class="signature-box"><img src="${d.signature}" alt="Client signature" /></div>
+            <div class="signature-box"><img src="${safeImageSrc(d.signature)}" alt="Client signature" /></div>
           </div>
         </div>` : ''}
 

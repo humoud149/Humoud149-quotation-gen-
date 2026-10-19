@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>GIG Quotation Tool — Manager Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-js-2.118.0.js"></script>
 <script src="exceljs.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -570,7 +570,14 @@ function exportCSV(){
       q.created_by_email || '', q.created_at || ''
     ]);
   });
-  const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+  // Neutralize spreadsheet formula injection: a text value that starts with
+  // = + - @ (or tab/CR) would be executed as a formula when opened in Excel.
+  // Prefix such text with an apostrophe; plain numbers are left untouched.
+  const safeCell = cell => {
+    const str = String(cell);
+    return (/^[=+\-@\t\r]/.test(str) && !/^-?\d+(\.\d+)?$/.test(str)) ? "'" + str : str;
+  };
+  const csv = rows.map(r => r.map(cell => `"${safeCell(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
   // Prepend a UTF-8 BOM so Excel detects the encoding correctly and renders
   // Arabic (and any other non-Latin) text properly instead of as garbled symbols.
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
