@@ -3602,7 +3602,7 @@ var qrcode = function() {
       </div>
       <div>
         <label data-i18n="lblDateIssued">Date Issued</label>
-        <input type="text" id="dateIssued" class="ltr-field locked-field" readonly />
+        <input type="text" id="dateIssued" class="ltr-field" />
       </div>
       <div>
         <label data-i18n="lblUnderwriter">Underwriter</label>
@@ -3809,15 +3809,14 @@ var qrcode = function() {
       <div class="section-title" data-i18n="secTerms">Terms &amp; Conditions</div>
       <div class="terms">
         <label data-i18n="lblTermsNotes">Notes for the client</label>
-        <div id="terms" class="terms-editable">1. This quotation is valid for 4 months from the date of issue and is subject to underwriting approval.
-2. Premium is subject to inspection of the vehicle prior to policy issuance.
-3. Coverage is not bound until premium payment is confirmed and policy is issued.
-4. Rates shown are exclusive of any applicable government fees.
-5. GIG reserves the right to amend terms based on risk assessment findings.</div>
+        <div id="terms" class="terms-editable" contenteditable="true">1. Premium is subject to inspection of the vehicle prior to policy issuance.
+2. Coverage is not bound until premium payment is confirmed and policy is issued.
+3. Rates shown are exclusive of any applicable government fees.
+4. GIG reserves the right to amend terms based on risk assessment findings.</div>
       </div>
 
       <div class="sign-row">
-        <div class="field"><label data-i18n="lblPreparedBy">Prepared By</label><input type="text" id="preparedBy" class="locked-field" readonly /></div>
+        <div class="field"><label data-i18n="lblPreparedBy">Prepared By</label><input type="text" id="preparedBy" /></div>
         <div class="field"><label data-i18n="lblContactNumber">Contact Number</label><input type="text" id="contactNumber" class="ltr-field" placeholder="+965 ..." /></div>
       </div>
 
@@ -4079,16 +4078,15 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     qrCaption: 'Scan to view this quotation online',
     qrInfoText: 'This QR code contains the general terms of the policy and is an integral part of this offer.',
     defaultTerms:
-`1. This quotation is valid for 4 months from the date of issue and is subject to underwriting approval.
-2. Premium is subject to inspection of the vehicle prior to policy issuance.
-3. Coverage is not bound until premium payment is confirmed and policy is issued.
-4. GIG reserves the right to amend terms based on risk assessment findings.
-5. Repair inside the agency.
-6. Deductible: 1% of the vehicle value, on the first claim only, paid once.
-7. No depreciation on spare parts.
-8. Front windshield: replaced once after paying the deductible amount; the second time, the insured bears 50% of the total replacement cost.
-9. Waiver of right of subrogation.
-10. 10% of the vehicle's value, up to a maximum of KWD 1,250 per accident; any amount above this is borne by the insured at 25% of the total repair cost, whether the vehicle was fully stationary or moving.`
+`1. Premium is subject to inspection of the vehicle prior to policy issuance.
+2. Coverage is not bound until premium payment is confirmed and policy is issued.
+3. GIG reserves the right to amend terms based on risk assessment findings.
+4. Repair inside the agency.
+5. Deductible: 1% of the vehicle value, on the first claim only, paid once.
+6. No depreciation on spare parts.
+7. Front windshield: replaced once after paying the deductible amount; the second time, the insured bears 50% of the total replacement cost.
+8. Waiver of right of subrogation.
+9. 10% of the vehicle's value, up to a maximum of KWD 1,250 per accident; any amount above this is borne by the insured at 25% of the total repair cost, whether the vehicle was fully stationary or moving.`
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات',
@@ -4250,16 +4248,15 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
     qrInfoText: 'هذا الـQR كود يحتوي على الشروط العامة من الوثيقة وهو جزء لا يتجزأ من هذا العرض.',
     defaultTerms:
-`1. هذا العرض صالح لمدة 4 أشهر من تاريخ إصداره وخاضع لموافقة الاكتتاب.
-2. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
-3. لا تُعتبر التغطية سارية حتى تأكيد سداد القسط وإصدار الوثيقة.
-4. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
-5. تصليح داخل الوكالة.
-6. التحمل: 1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.
-7. بدون استهلاك على قطع الغيار.
-8. الزجاج الامامي: تبديل الزجاج الامامي اول مره بعد دفع مبلغ التحمل، ثاني مره يتحمل المؤمن له 50% من اجمالي التبديل.
-9. مع عدم حق الرجوع.
-10. 10% من قيمة المركبة وبحد اقصى 1,250 د.ك لكل حادث وما زاد عن ذلك يتحمل المؤمن له 25% من اجمالي التصليح سواء كانت المركبه في حال توقف تام او متحركه.`
+`1. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
+2. لا تُعتبر التغطية سارية حتى تأكيد سداد القسط وإصدار الوثيقة.
+3. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
+4. تصليح داخل الوكالة.
+5. التحمل: 1% من قيمة المركبة على اول مطالبه فقط وتدفع مره واحده.
+6. بدون استهلاك على قطع الغيار.
+7. الزجاج الامامي: تبديل الزجاج الامامي اول مره بعد دفع مبلغ التحمل، ثاني مره يتحمل المؤمن له 50% من اجمالي التبديل.
+8. مع عدم حق الرجوع.
+9. 10% من قيمة المركبة وبحد اقصى 1,250 د.ك لكل حادث وما زاد عن ذلك يتحمل المؤمن له 25% من اجمالي التصليح سواء كانت المركبه في حال توقف تام او متحركه.`
   }
 };
 
@@ -4604,8 +4601,8 @@ async function startNewQuotation(type){
   applyLanguage(dashboardLanguage);
   resetForm();
 
-  // Date Issued and Prepared By are fixed the moment a quotation is
-  // created — today's date, and whichever account is logged in.
+  // Date Issued and Prepared By start as today's date and the logged-in
+  // account; both can be edited afterwards.
   document.getElementById('dateIssued').value = formatDisplayDate(new Date());
   document.getElementById('preparedBy').value = currentUserEmail;
   document.getElementById('supervisionFee').value = '3';
@@ -4672,18 +4669,13 @@ function openQuotationForm(type){
   const underwriterField = document.getElementById('underwriter');
   if (underwriterField && !underwriterField.value) underwriterField.value = currentUserEmail;
 
-  // Individual quotations use a fixed rate for the current event.
-  // Corporate quotations remain fully editable, as before.
+  // Rate is editable for every quotation type. New individual quotations
+  // start pre-filled with the standard 2.5% but the user can change it.
   const rateInput = document.getElementById('rate');
   if (rateInput){
-    if (type === 'individual'){
-      if (!rateInput.value) rateInput.value = '2.5';
-      rateInput.readOnly = true;
-      rateInput.classList.add('locked-field');
-    } else {
-      rateInput.readOnly = false;
-      rateInput.classList.remove('locked-field');
-    }
+    if (type === 'individual' && !rateInput.value) rateInput.value = '2.5';
+    rateInput.readOnly = false;
+    rateInput.classList.remove('locked-field');
   }
 
   calc();
@@ -5202,6 +5194,9 @@ function calc(){
   if (isCorp){
     const fleetCount = parseInt(document.getElementById('fleetVehicleCount').value, 10) || 0;
     document.getElementById('supervisionFee').value = (3 + 0.5 * fleetCount).toFixed(3);
+  } else {
+    // Individual: Supervision Fee is fixed at KWD 3 and cannot be changed.
+    document.getElementById('supervisionFee').value = '3.000';
   }
 
   // Percentage-based catalog add-ons (War, Geographical Extension) stay in
