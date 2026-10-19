@@ -3338,6 +3338,10 @@ var qrcode = function() {
      Default (no type class yet) shows individual fields, since that's the
      common case before a type is chosen. */
   .corp-only{ display: none; }
+  /* Corporate-only items must stay hidden on Individual quotations even where a
+     more specific rule (e.g. ".field label") would otherwise force them visible. */
+  #quoteSheet:not(.type-corporate) .corp-only{ display: none !important; }
+  #quoteSheet.type-corporate label.corp-only{ display: block; }
   #quoteSheet.type-corporate .indiv-only{ display: none; }
   #quoteSheet.type-corporate span.corp-only{ display: inline; }
   #quoteSheet.type-corporate div.corp-only{ display: block; }
