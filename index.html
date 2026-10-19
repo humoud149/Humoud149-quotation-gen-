@@ -5073,13 +5073,10 @@ function getMissingRequiredFields(){
   const isCorp = selectedQuoteType === 'corporate';
   const checks = isCorp ? [
     { id: 'clientName', label: dict.lblInsuredName },
-    { id: 'mobile', label: dict.lblMobile },
     { id: 'fleetVehicleCount', label: dict.lblFleetCount },
     { id: 'sumInsured', label: dict.lblSumInsured }
   ] : [
     { id: 'clientName', label: dict.lblClientName },
-    { id: 'civilId', label: dict.lblCivilId },
-    { id: 'mobile', label: dict.lblMobile },
     { id: 'vehicleMake', label: dict.lblMake },
     { id: 'vehicleModel', label: dict.lblModel },
     { id: 'sumInsured', label: dict.lblSumInsured }
