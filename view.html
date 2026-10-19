@@ -534,7 +534,7 @@ async function loadQuotation(){
         ${isCorp ? textBlock(t.secSpecialConditions, corpBlocks.specialConditions) : ''}
 
         <div class="section-title">${esc(t.secTerms)}</div>
-        <div class="terms-box">${esc(d.terms)}</div>
+        <div class="terms-box">${esc((d.terms || '') + ((d.addonTerms && d.addonTerms.length) ? '\n\n' + d.addonTerms.map(l => '\u2022 ' + l).join('\n') : ''))}</div>
 
         <div class="sign-row">
           ${field(t.lblPreparedBy, d.preparedBy)}

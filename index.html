@@ -2660,6 +2660,25 @@ var qrcode = function() {
     overflow: visible;
   }
   .terms-editable:focus{ outline:none; border-color: var(--gold); }
+  .terms-addons{
+    width:100%;
+    border: 1px solid var(--line);
+    border-top: 1px dashed var(--gold);
+    border-radius: 0 0 6px 6px;
+    padding: 10px 16px 12px;
+    font-family:'Inter', sans-serif;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    background: var(--cream);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .terms.has-addons .terms-editable{
+    min-height: 0;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+  }
 
   /* Signature / footer */
   .sign-row{
@@ -3377,7 +3396,7 @@ var qrcode = function() {
     .box.total input{ color:#fff !important; }
     .box input, .box select{ font-size: 16px !important; }
     select{ background-image:none !important; padding-right:2px !important; padding-left:2px !important; }
-    .terms-editable{ color:#000 !important; overflow: visible !important; height:auto !important; }
+    .terms-editable, .terms-addons{ color:#000 !important; overflow: visible !important; height:auto !important; }
     .box, .addons, .terms-editable, .meta, .grid, .coverage-grid,
     table, tr, .sign-row, .signature-row, .header{
       page-break-inside: avoid;
@@ -3809,13 +3828,12 @@ var qrcode = function() {
       <div class="section-title" data-i18n="secTerms">Terms &amp; Conditions</div>
       <div class="terms">
         <label data-i18n="lblTermsNotes">Notes for the client</label>
-        <div id="terms" class="terms-editable" contenteditable="true">1. Premium is subject to inspection of the vehicle prior to policy issuance.
-2. Coverage is not bound until premium payment is confirmed and policy is issued.
-3. GIG reserves the right to amend terms based on risk assessment findings.
-4. Territorial limits: State of Kuwait.
-5. Period of insurance: one year only.
-6. Comprehensive cover for partial and total loss of the vehicle, in accordance with the policy conditions.
-7. Repair inside the agency.</div>
+        <div id="terms" class="terms-editable" contenteditable="true">1. Repair inside the agency.
+2. No deductible.
+3. No depreciation on spare parts.
+4. Unknown accident: 10% of the vehicle value, up to a maximum of KWD 1,250; any amount above this is borne by the insured at 50% of the total repair cost.
+5. Front windshield: covered once, inside the agency only (provided the current windshield is original, otherwise replacement will be outside the agency); the second time with a 50% deductible borne by the insured.</div>
+        <div id="termsAddons" class="terms-addons" style="display:none"></div>
       </div>
 
       <div class="sign-row">
@@ -4017,7 +4035,7 @@ const TRANSLATIONS = {
     atKnownRimsGlassDefault: 'No deductible',
     atKnownTotalLossDefault: '0–3 months: 5%\n4–6 months: 10%\n7–9 months: 15%\n10–12 months: 20%\nFire: 25%',
     atUnknownDefinitionDefault: 'All accidents where there is no second party, as stated in the police report.',
-    atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,250 per accident. Any amount above this is borne by the insured at 25% of the total repair cost, whether the vehicle was fully stationary or moving.',
+    atUnknownCoverageDefault: '10% of the vehicle value, up to a maximum of KWD 1,250 per accident. Any amount above this is borne by the insured at 50% of the total repair cost, whether the vehicle was fully stationary or moving.',
     atUnknownDeductibleDefault: 'No deductible',
     atUnknownDepreciationDefault: 'No depreciation on replaced spare parts for the first five years from the vehicle\u2019s manufacture date.',
     atUnknownWindshieldDefault: 'Covered once inside the agency after paying the deductible; second time at 50% (provided the current windshield is original — otherwise replacement will be outside the agency).',
@@ -4081,13 +4099,11 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     qrCaption: 'Scan to view this quotation online',
     qrInfoText: 'This QR code contains the general terms of the policy and is an integral part of this offer.',
     defaultTerms:
-`1. Premium is subject to inspection of the vehicle prior to policy issuance.
-2. Coverage is not bound until premium payment is confirmed and policy is issued.
-3. GIG reserves the right to amend terms based on risk assessment findings.
-4. Territorial limits: State of Kuwait.
-5. Period of insurance: one year only.
-6. Comprehensive cover for partial and total loss of the vehicle, in accordance with the policy conditions.
-7. Repair inside the agency.`
+`1. Repair inside the agency.
+2. No deductible.
+3. No depreciation on spare parts.
+4. Unknown accident: 10% of the vehicle value, up to a maximum of KWD 1,250; any amount above this is borne by the insured at 50% of the total repair cost.
+5. Front windshield: covered once, inside the agency only (provided the current windshield is original, otherwise replacement will be outside the agency); the second time with a 50% deductible borne by the insured.`
   },
   ar: {
     appTitle: 'عرض سعر تأمين المركبات',
@@ -4185,7 +4201,7 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     atKnownRimsGlassDefault: 'بدون تحمل',
     atKnownTotalLossDefault: '0-3 أشهر: 5%\n4-6 أشهر: 10%\n7-9 أشهر: 15%\n10-12 شهر: 20%\nحريق: 25%',
     atUnknownDefinitionDefault: 'جميع الحوادث التي لا يوجد بها طرف ثاني كما هو بتقرير المخفر.',
-    atUnknownCoverageDefault: '10% من قيمة المركبة وبحد اقصى 1,250 د.ك لكل حادث وما زاد عن ذلك يتحمل المؤمن له 25% من اجمالي التصليح سواء كانت المركبه في حال توقف تام او متحركه.',
+    atUnknownCoverageDefault: '10% من قيمة المركبة وبحد اقصى 1,250 د.ك لكل حادث وما زاد عن ذلك يتحمل المؤمن له 50% من اجمالي التصليح سواء كانت المركبه في حال توقف تام او متحركه.',
     atUnknownDeductibleDefault: 'بدون تحمل',
     atUnknownDepreciationDefault: 'بدون استهلاك على قطع الغيار المستبدلة لأول خمس سنوات من صنع المركبة.',
     atUnknownWindshieldDefault: 'مغطى مرة واحدة داخل الوكالة فقط بعد دفع التحمل، والمرة الثانية 50% (شرط أن يكون الزجاج الحالي أصلي، وإلا سيكون التبديل خارج الوكالة).',
@@ -4249,13 +4265,11 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     qrCaption: 'امسح الرمز لعرض هذا العرض إلكترونيًا',
     qrInfoText: 'هذا الـQR كود يحتوي على الشروط العامة من الوثيقة وهو جزء لا يتجزأ من هذا العرض.',
     defaultTerms:
-`1. القسط خاضع لمعاينة المركبة قبل إصدار الوثيقة.
-2. لا تُعتبر التغطية سارية حتى تأكيد سداد القسط وإصدار الوثيقة.
-3. تحتفظ مجموعة الخليج للتأمين بحق تعديل الشروط بناءً على نتائج تقييم المخاطر.
-4. حدود التغطية: دولة الكويت.
-5. مدة التأمين: سنة واحدة فقط.
-6. تغطية شاملة للخسارة الجزئية والكلية للمركبات حسب شروط الوثيقة.
-7. تصليح داخل الوكالة.`
+`1. تصليح داخل الوكالة.
+2. بدون تحمل.
+3. بدون استهلاك على قطع الغيار.
+4. المجهول: 10% من قيمة المركبة بحد أقصى 1250 د.ك وما زاد عن ذلك يتحمل المؤمن له 50% من اجمالي التصليح.
+5. الزجاج الامامي: مغطى مرة واحدة داخل الوكالة فقط (شرط ان يكون الزجاج الحالي أصلي وإلا سيكون التبديل خارج الوكالة) والمرة الثانية مع تحمل 50%.`
   }
 };
 
@@ -4274,9 +4288,9 @@ const ADDON_CATALOG = [
   { key:'geoExtension',       group:'grpOther', en:'Geographical Extension Coverage',  ar:'تغطية التمديد الجغرافي',              type:'percentMin', rate:0.01, min:100 },
   { key:'personalAccidentA',  group:'grpOther', en:'Personal Accident Coverage',       ar:'تغطية الحوادث الشخصية',               type:'fixed', amount:20 },
   { key:'roadside',           group:'grpOther', en:'Roadside Assistance',              ar:'خدمة المساعدة على الطريق',            type:'fixed', amount:5  },
-  { key:'waiverSubrogation',   group:'grpOther', en:'Waiver of Right of Subrogation — Free',    ar:'عدم حق الرجوع — مجاني',   type:'fixed', amount:0, noHint:true },
-  { key:'waiverSubrogation16', group:'grpOther', en:'Waiver of Right of Subrogation — KWD 16', ar:'عدم حق الرجوع — 16 د.ك', type:'fixed', amount:16, noHint:true },
-  { key:'waiverSubrogation30', group:'grpOther', en:'Waiver of Right of Subrogation — KWD 30', ar:'عدم حق الرجوع — 30 د.ك', type:'fixed', amount:30, noHint:true },
+  { key:'waiverSubrogation',   group:'grpOther', en:'Waiver of Right of Subrogation — Free',    ar:'عدم حق الرجوع — مجاني',   type:'fixed', amount:0, noHint:true, termsEn:'Waiver of Right of Subrogation (free of charge)', termsAr:'عدم حق الرجوع (مجاناً)' },
+  { key:'waiverSubrogation16', group:'grpOther', en:'Waiver of Right of Subrogation — KWD 16', ar:'عدم حق الرجوع — 16 د.ك', type:'fixed', amount:16, noHint:true, termsEn:'Waiver of Right of Subrogation', termsAr:'عدم حق الرجوع' },
+  { key:'waiverSubrogation30', group:'grpOther', en:'Waiver of Right of Subrogation — KWD 30', ar:'عدم حق الرجوع — 30 د.ك', type:'fixed', amount:30, noHint:true, termsEn:'Waiver of Right of Subrogation', termsAr:'عدم حق الرجوع' },
   { key:'vehicleProtect500',  group:'grpOther', en:'Vehicle Protection — up to KWD 500',  ar:'تغطية حماية السيارة — لغاية 500 د.ك',    type:'fixed', amount:25 },
   { key:'vehicleProtect1000', group:'grpOther', en:'Vehicle Protection — KWD 501–1,000',  ar:'تغطية حماية السيارة — 501-1,000 د.ك',    type:'fixed', amount:50 },
 ];
@@ -4294,6 +4308,36 @@ function addonLabel(entry, lang){
     return groupLabel + ' — ' + name;
   }
   return name;
+}
+
+// Lines describing every selected add-on, shown under the terms so the
+// client sees exactly which extra covers are included in this offer.
+function getAddonTermLines(){
+  const lang = selectedLanguage === 'ar' ? 'ar' : 'en';
+  const prefix = lang === 'ar' ? 'تغطية إضافية: ' : 'Additional cover: ';
+  const lines = [];
+  document.querySelectorAll('#addonRows tr').forEach(tr => {
+    let name = '';
+    const entry = tr.dataset.addonKey ? ADDON_CATALOG.find(a => a.key === tr.dataset.addonKey) : null;
+    if (entry){
+      name = (lang === 'ar' ? entry.termsAr : entry.termsEn) || addonLabel(entry, lang);
+    } else {
+      const nameEl = tr.querySelector('td:first-child input');
+      name = nameEl ? nameEl.value.trim() : '';
+    }
+    if (name) lines.push(prefix + name);
+  });
+  return lines;
+}
+
+function updateAddonTerms(){
+  const el = document.getElementById('termsAddons');
+  if (!el) return;
+  const lines = getAddonTermLines();
+  el.innerText = lines.map(l => '\u2022 ' + l).join('\n');
+  el.style.display = lines.length ? '' : 'none';
+  const wrap = el.closest('.terms');
+  if (wrap) wrap.classList.toggle('has-addons', lines.length > 0);
 }
 
 function addonPriceHint(entry, lang){
@@ -4777,6 +4821,7 @@ function collectFormData(){
     terms: document.getElementById('terms').innerText,
     accidentTerms: accidentTerms,
     corpTextBlocks: corpTextBlocks,
+    addonTerms: getAddonTermLines(),
     preparedBy: val('preparedBy'),
     contactNumber: val('contactNumber'),
     signature: currentSignatureData
@@ -5226,6 +5271,7 @@ function calc(){
     const total = basePremium + addonTotal + supervisionFee;
     document.getElementById('totalPremium').value = total.toFixed(3);
   }
+  updateAddonTerms();
 }
 
 // ---------- Fleet Excel/CSV upload (Corporate premium calculation) ----------
