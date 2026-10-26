@@ -3725,7 +3725,7 @@ var qrcode = function() {
       <div class="coverage-grid">
         <div class="box">
           <label data-i18n="lblRepairLocation">Repair Location</label>
-          <select id="repairLocation">
+          <select id="repairLocation" onchange="calc()">
             <option value="" disabled selected data-i18n="phSelect">Select...</option>
             <option value="Inside Agency" data-i18n="optInsideAgency">Inside Agency</option>
             <option value="Outside Agency" data-i18n="optOutsideAgency">Outside Agency</option>
@@ -5190,8 +5190,15 @@ function recalcTotal(){
   calc();
 }
 
-const MIN_PREMIUM = 200;
-const MIN_PREMIUM_THRESHOLD = 8000; // below this Sum Insured, premium is fixed at MIN_PREMIUM regardless of rate
+// Individual minimum premium depends on where the vehicle is repaired.
+// The premium is whichever is higher: Sum Insured x Rate, or this minimum.
+const MIN_PREMIUM_INSIDE_AGENCY = 200;
+const MIN_PREMIUM_OUTSIDE_AGENCY = 150;
+function individualMinPremium(){
+  const loc = document.getElementById('repairLocation').value;
+  // Until a repair location is chosen, use the stricter (higher) minimum.
+  return loc === 'Outside Agency' ? MIN_PREMIUM_OUTSIDE_AGENCY : MIN_PREMIUM_INSIDE_AGENCY;
+}
 
 // Per-vehicle Sum Insured figures uploaded for a Corporate/Fleet quotation.
 // Empty when no file has been uploaded (or it's been cleared) — in that
@@ -5225,12 +5232,11 @@ function calc(){
     renderFleetUploadSummary(rate, minPerVehicle);
   } else {
     basePremium = sumInsured * (rate/100);
-    // Minimum premium rule (Individual only): any vehicle with Sum Insured
-    // below the threshold is charged the fixed minimum premium instead of
-    // the rate-based amount. Corporate fleets use their own per-vehicle
-    // minimum premium field instead — this flat rule doesn't apply to them.
-    if (!isCorp && sumInsured > 0 && sumInsured < MIN_PREMIUM_THRESHOLD) {
-      basePremium = MIN_PREMIUM;
+    // Minimum premium rule (Individual only): the premium is never below the
+    // minimum for the chosen repair location (200 inside / 150 outside agency).
+    // Corporate fleets use their own per-vehicle minimum premium field.
+    if (!isCorp && sumInsured > 0 && basePremium < individualMinPremium()) {
+      basePremium = individualMinPremium();
     }
   }
   document.getElementById('basePremium').value = basePremium.toFixed(3);
