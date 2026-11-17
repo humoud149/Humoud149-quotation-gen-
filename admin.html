@@ -659,20 +659,31 @@ function applyDateFilter(){
   loadStats(from, to);
 }
 
-function exportCSV(){
-  const rows = [
-    ['Quote No', 'Type', 'Status', 'Client Name', 'Vehicle Make', 'Vehicle Model', 'Vehicle Year',
-     'Sum Insured', 'Total Premium', 'Repair Location', 'Policy Type', 'Prepared By', 'Created At']
+const EXPORT_HEADERS = ['Quote No','Type','Status','Stage','Client Name','Vehicle Make','Vehicle Model','Vehicle Year',
+  'Chassis No (VIN)','Plate Number','Sum Insured','Rate %','Base Premium','Add-ons Total','Total Premium',
+  'Repair Location','Policy Type','Language','Prepared By','Created At','Last Updated'];
+const EXPORT_NUMERIC = { 'Sum Insured':'#,##0', 'Rate %':'0.00', 'Base Premium':'#,##0.00', 'Add-ons Total':'#,##0.00', 'Total Premium':'#,##0.00' };
+const STAGE_NAMES = { open:'Open', sent:'Sent', accepted:'Accepted', expired:'Expired', lost:'Lost' };
+
+// One quotation -> one export row (same order as EXPORT_HEADERS). Numbers stay numbers.
+function exportRowValues(q){
+  const d = q.data || {};
+  const addons = Array.isArray(d.addons) ? d.addons.reduce((t, a) => t + (parseFloat(a && a.amount) || 0), 0) : 0;
+  const num = v => { const n = parseFloat(v); return isNaN(n) ? '' : n; };
+  return [
+    q.quote_no || '', q.quote_type || '', q.status || '',
+    q.status === 'completed' ? (STAGE_NAMES[q.stage] || 'Open') : '',
+    d.clientName || '', d.vehicleMake || '', d.vehicleModel || '', d.vehicleYear || '',
+    q.vin || d.chassisNo || '', d.plateNumber || '',
+    num(d.sumInsured), num(d.rate), num(d.basePremium), addons, num(d.totalPremium),
+    d.repairLocation || '', d.policyType || '', d.language === 'ar' ? 'Arabic' : 'English',
+    q.created_by_email || '', q.created_at || '', q.updated_at || ''
   ];
-  lastLoadedQuotes.forEach(q => {
-    const d = q.data || {};
-    rows.push([
-      q.quote_no || '', q.quote_type || '', q.status || '', d.clientName || '',
-      d.vehicleMake || '', d.vehicleModel || '', d.vehicleYear || '',
-      d.sumInsured || '', d.totalPremium || '', d.repairLocation || '', d.policyType || '',
-      q.created_by_email || '', q.created_at || ''
-    ]);
-  });
+}
+
+function exportCSV(){
+  const rows = [EXPORT_HEADERS];
+  lastLoadedQuotes.forEach(q => rows.push(exportRowValues(q)));
   // Neutralize spreadsheet formula injection: a text value that starts with
   // = + - @ (or tab/CR) would be executed as a formula when opened in Excel.
   // Prefix such text with an apostrophe; plain numbers are left untouched.
@@ -834,24 +845,72 @@ async function exportDashboardExcel(){
 
   // ================= POLICIES SHEET =================
   const polSheet = wb.addWorksheet('Policies', { views: [{ state:'frozen', ySplit:1 }] });
-  const headers = ['Quote No','Type','Status','Client Name','Vehicle Make','Vehicle Model','Vehicle Year','Sum Insured','Total Premium','Repair Location','Policy Type','Prepared By','Created At'];
+  const headers = EXPORT_HEADERS;
   polSheet.columns = headers.map(h => ({ header:h, key:h, width: Math.max(14, h.length+4) }));
   polSheet.getRow(1).eachCell(c => {
     c.font = { name:'Arial', size:10, bold:true, color:{argb:WHITE} };
     c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:NAVY} };
   });
-  s.allQuotes.forEach(q => {
-    const d = q.data || {};
-    polSheet.addRow([
-      q.quote_no || '', q.quote_type || '', q.status || '', d.clientName || '',
-      d.vehicleMake || '', d.vehicleModel || '', d.vehicleYear || '',
-      parseFloat(d.sumInsured) || 0, parseFloat(d.totalPremium) || 0,
-      d.repairLocation || '', d.policyType || '', q.created_by_email || '', q.created_at || ''
-    ]);
+  s.allQuotes.forEach(q => polSheet.addRow(exportRowValues(q)));
+  polSheet.autoFilter = { from:{row:1,column:1}, to:{row:s.allQuotes.length+1,column:headers.length} };
+  headers.forEach((h, idx) => { if (EXPORT_NUMERIC[h]) polSheet.getColumn(idx+1).numFmt = EXPORT_NUMERIC[h]; });
+  polSheet.getColumn(headers.indexOf('Chassis No (VIN)')+1).width = 22;
+
+  // ================= PIPELINE SHEET =================
+  const pipe = wb.addWorksheet('Pipeline', { views: [{ showGridLines: false }] });
+  pipe.columns = [{width:26},{width:11},{width:11},{width:11},{width:11},{width:11},{width:11},{width:20},{width:18}];
+  const stages = ['open','sent','accepted','expired','lost'];
+  const hdr = (row, vals) => {
+    vals.forEach((v, i) => {
+      const c = pipe.getCell(row, i+1); c.value = v;
+      c.font = { name:'Arial', size:10, bold:true, color:{argb:WHITE} };
+      c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:NAVY} };
+      c.alignment = { horizontal: i ? 'center' : 'left' };
+    });
+  };
+  pipe.getCell('A1').value = 'Quotation pipeline (completed quotations)';
+  pipe.getCell('A1').font = { name:'Arial', size:14, bold:true, color:{argb:NAVY} };
+  pipe.getCell('A2').value = s.rangeLabel;
+  pipe.getCell('A2').font = { name:'Arial', size:10, color:{argb:MUTED} };
+
+  const stageOf = q => STAGE_NAMES[q.stage] ? q.stage : 'open';
+  const prem = q => parseFloat((q.data || {}).totalPremium) || 0;
+  const tot = { open:0, sent:0, accepted:0, expired:0, lost:0 };
+  const premBy = { open:0, sent:0, accepted:0, expired:0, lost:0 };
+  s.quotes.forEach(q => { tot[stageOf(q)]++; premBy[stageOf(q)] += prem(q); });
+
+  hdr(4, ['By stage','Count','Share','Premium (KWD)']);
+  stages.forEach((k, i) => {
+    const r = 5 + i;
+    pipe.getCell(r,1).value = STAGE_NAMES[k];
+    pipe.getCell(r,2).value = tot[k];
+    pipe.getCell(r,3).value = s.quotes.length ? tot[k] / s.quotes.length : 0; pipe.getCell(r,3).numFmt = '0.0%';
+    pipe.getCell(r,4).value = premBy[k]; pipe.getCell(r,4).numFmt = '#,##0.00';
   });
-  polSheet.autoFilter = { from:'A1', to:`M${s.allQuotes.length+1}` };
-  polSheet.getColumn(8).numFmt = '#,##0';
-  polSheet.getColumn(9).numFmt = '#,##0.00';
+  const decided = tot.accepted + tot.lost + tot.expired;
+  pipe.getCell(11,1).value = 'Accepted, share of all quotations';
+  pipe.getCell(11,2).value = s.quotes.length ? tot.accepted / s.quotes.length : 0; pipe.getCell(11,2).numFmt = '0.0%';
+  pipe.getCell(12,1).value = 'Accepted, share of decided (accepted + lost + expired)';
+  pipe.getCell(12,2).value = decided ? tot.accepted / decided : 0; pipe.getCell(12,2).numFmt = '0.0%';
+  pipe.getCell(11,1).font = pipe.getCell(12,1).font = { name:'Arial', size:10, bold:true };
+
+  const byUserStage = {};
+  s.quotes.forEach(q => {
+    const u = q.created_by_email || 'Unknown';
+    byUserStage[u] = byUserStage[u] || { open:0, sent:0, accepted:0, expired:0, lost:0, total:0, acceptedPremium:0 };
+    byUserStage[u][stageOf(q)]++; byUserStage[u].total++;
+    if (stageOf(q) === 'accepted') byUserStage[u].acceptedPremium += prem(q);
+  });
+  hdr(14, ['By person','Open','Sent','Accepted','Expired','Lost','Total','Accepted premium (KWD)','Accepted of decided']);
+  Object.entries(byUserStage).sort((a,b)=>b[1].total-a[1].total).forEach(([u, v], i) => {
+    const r = 15 + i;
+    pipe.getCell(r,1).value = u;
+    stages.forEach((k, j) => { pipe.getCell(r, 2+j).value = v[k]; pipe.getCell(r, 2+j).alignment = { horizontal:'center' }; });
+    pipe.getCell(r,7).value = v.total; pipe.getCell(r,7).alignment = { horizontal:'center' };
+    pipe.getCell(r,8).value = v.acceptedPremium; pipe.getCell(r,8).numFmt = '#,##0.00';
+    const dec = v.accepted + v.lost + v.expired;
+    pipe.getCell(r,9).value = dec ? v.accepted / dec : ''; pipe.getCell(r,9).numFmt = '0.0%'; pipe.getCell(r,9).alignment = { horizontal:'center' };
+  });
 
   const buf = await wb.xlsx.writeBuffer();
   const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
