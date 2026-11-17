@@ -4027,7 +4027,7 @@ var qrcode = function() {
           </select>
         </div>
         <div class="field"><label data-i18n="lblPlate">Plate Number</label><input type="text" id="plateNumber" class="ltr-field" /></div>
-        <div class="field"><label data-i18n="lblChassis">Chassis No.</label><input type="text" id="chassisNo" class="ltr-field" oninput="this.classList.remove('field-error'); scheduleVinCheck()" onblur="runVinCheck()" /><div id="vinWarn" class="vin-warn no-print" role="alert" style="display:none"></div></div>
+        <div class="field"><label data-i18n="lblChassis">Chassis No.</label><input type="text" id="chassisNo" class="ltr-field" maxlength="25" placeholder="Full 17-character VIN" oninput="this.classList.remove('field-error'); scheduleVinCheck()" onblur="runVinCheck()" /><div id="vinWarn" class="vin-warn no-print" role="alert" style="display:none"></div></div>
         <div class="field"><label data-i18n="lblUsage">Usage</label><input type="text" id="usage" data-i18n-ph="phUsage" placeholder="Private / Commercial" /></div>
       </div>
       <div class="grid corp-only">
@@ -4328,6 +4328,7 @@ const TRANSLATIONS = {
     lblCrNumber: 'C.R. Number (optional)',
     missingFieldsMessage: 'Please fill in the following before saving as PDF:',
     errMobileFormat: 'must be at least 8 digits',
+    errVinFormat: 'must be a real, full 17-character VIN',
     errCivilIdFormat: 'must be exactly 12 digits',
     phClientName: 'Full name',
     lblCivilId: 'Civil ID',
@@ -4494,6 +4495,7 @@ In the event of loss or damage to the interest to be insured hereunder, GIG Kuwa
     lblCrNumber: 'رقم السجل التجاري (اختياري)',
     missingFieldsMessage: 'يرجى تعبئة الحقول التالية قبل الحفظ كملف PDF:',
     errMobileFormat: 'يجب أن يكون 8 أرقام على الأقل',
+    errVinFormat: 'يجب إدخال رقم هيكل حقيقي وكامل (17 خانة)',
     errCivilIdFormat: 'يجب أن يكون 12 رقمًا بالضبط',
     phClientName: 'الاسم الكامل',
     lblCivilId: 'الرقم المدني',
@@ -5483,6 +5485,12 @@ function getMissingRequiredFields(){
         problemLabel = c.label + ' (' + dict.errMobileFormat + ')';
       }
     }
+    if (!isInvalid && c.id === 'chassisNo'){
+      if (!isPlausibleVin(rawVal)){
+        isInvalid = true;
+        problemLabel = c.label + ' (' + dict.errVinFormat + ')';
+      }
+    }
     if (!isInvalid && c.id === 'civilId'){
       if (digitsOnly(rawVal).length !== 12){
         isInvalid = true;
@@ -5551,7 +5559,9 @@ async function handlePrint(){
   } catch(err){
     console.error('Could not save/finalize quotation:', err);
     const m = String((err && err.message) || '').match(/VIN_DUPLICATE\|([^|]*)\|(.*)$/);
-    if (m){
+    if (String((err && err.message) || '').includes('VIN_INVALID')){
+      alert('The chassis number is not a valid VIN. Enter the real, full 17-character VIN from the vehicle registration.');
+    } else if (m){
       showVinClash({ quote_no: m[1], prepared_by: m[2] });
       alert('This vehicle already has quotation ' + m[1] + ' prepared by ' + m[2] + '.\n\nA second quotation cannot be created until that one is marked Lost or Expired.');
     } else {
@@ -5738,10 +5748,27 @@ function scheduleVinCheck(){
   vinTimer = setTimeout(runVinCheck, 600);
 }
 function normalizeVin(v){ return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+// Same rules as the database (is_plausible_vin): a real-looking, full 17-character VIN.
+function isPlausibleVin(raw){
+  const v = normalizeVin(raw);
+  if (!/^[A-HJ-NPR-Z0-9]{17}$/.test(v)) return false;     // 17 chars, no I / O / Q
+  if (!/[A-Z]/.test(v) || !/[0-9]/.test(v)) return false;  // letters AND digits
+  if (new Set(v.split('')).size < 6) return false;         // too few different characters
+  if (/(.)\1{5,}/.test(v)) return false;                  // 6+ identical in a row
+  let run = 1, dir = 0;
+  for (let i = 1; i < v.length; i++){
+    const d = v.charCodeAt(i) - v.charCodeAt(i - 1);
+    if (d === 1 || d === -1){
+      if (d === dir) run++; else { run = 2; dir = d; }
+      if (run >= 7) return false;                          // 1234567 / ABCDEFG style runs
+    } else { run = 1; dir = 0; }
+  }
+  return true;
+}
 async function findVinClash(){
   if (selectedQuoteType !== 'individual') return null;
   const vin = normalizeVin(val('chassisNo'));
-  if (vin.length < 5) return null;
+  if (vin.length !== 17) return null;
   try{
     const { data, error } = await supabaseClient.rpc('check_vin', { p_vin: vin, p_id: currentQuotationId ? String(currentQuotationId) : null });
     if (error){ console.error('VIN check failed:', error); return null; }
