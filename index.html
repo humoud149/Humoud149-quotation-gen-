@@ -3862,6 +3862,24 @@ var qrcode = function() {
     .list-tools{ margin-top: 0; }
     .search-input{ max-width: none; }
   }
+
+  /* ===== v2 features ===== */
+  .vin-warn{ margin-top: 8px; padding: 9px 12px; background: #fdeceb; border: 1px solid #f0c4c1; color: #8c1d18; border-radius: 8px; font-size: 13px; line-height: 1.45; }
+  .rate-hint{ margin-top: 8px; font-size: 12.5px; color: var(--navy); background: var(--gold-soft); border-radius: 8px; padding: 8px 10px; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .rate-hint button{ border: none; background: var(--navy); color: #fff; border-radius: 6px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .list-filters{ display:flex; gap: 10px; align-items:center; flex-wrap: wrap; margin: 0 0 14px; }
+  .list-filters select{ border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 13.5px; background: #fff; color: var(--ink); }
+  .mine-toggle{ font-size: 13.5px; color: var(--ink); display:flex; align-items:center; gap: 6px; cursor: pointer; }
+  .stage-chip, .stage-select{ font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 4px 10px; border: 1px solid transparent; }
+  .stage-select{ cursor: pointer; padding-right: 6px; }
+  .stage-open{ background: var(--navy-soft); color: var(--navy); }
+  .stage-sent{ background: #e3edfb; color: #1f4f99; }
+  .stage-accepted{ background: #e2f3e8; color: #1f6b3a; }
+  .stage-expired{ background: #eee; color: #5c5f6b; }
+  .stage-lost{ background: #fdeceb; color: #8c1d18; }
+  .btn-send{ background: #fff !important; color: var(--navy) !important; border: 1px solid #c3c9d8 !important; }
+  .btn-send:hover{ border-color: var(--navy) !important; }
+  @media print{ .vin-warn, .rate-hint, .btn-send{ display:none !important; } }
   @media (prefers-reduced-motion: reduce){
     *{ transition: none !important; animation: none !important; }
   }
@@ -3920,6 +3938,11 @@ var qrcode = function() {
         <div class="list-tools">
           <input type="search" id="quoteSearch" class="search-input" placeholder="Search by number, client or preparer" oninput="filterQuotes()" aria-label="Search quotations" />
           <span class="list-count" id="quoteCount"></span>
+        </div>
+        <div class="list-filters">
+          <select id="fType" onchange="filterQuotes()" aria-label="Type"><option value="">All types</option><option value="individual">Individual</option><option value="corporate">Corporate</option></select>
+          <select id="fStage" onchange="filterQuotes()" aria-label="Stage"><option value="">All stages</option><option value="open">Open</option><option value="sent">Sent</option><option value="accepted">Accepted</option><option value="expired">Expired</option><option value="lost">Lost</option></select>
+          <label class="mine-toggle"><input type="checkbox" id="fMine" onchange="filterQuotes()" /> My quotations only</label>
         </div>
         <div id="quoteListWrap">
           <div class="dash-empty">Loading…</div>
@@ -4004,7 +4027,7 @@ var qrcode = function() {
           </select>
         </div>
         <div class="field"><label data-i18n="lblPlate">Plate Number</label><input type="text" id="plateNumber" class="ltr-field" /></div>
-        <div class="field"><label data-i18n="lblChassis">Chassis No.</label><input type="text" id="chassisNo" class="ltr-field" /></div>
+        <div class="field"><label data-i18n="lblChassis">Chassis No.</label><input type="text" id="chassisNo" class="ltr-field" oninput="this.classList.remove('field-error'); scheduleVinCheck()" onblur="runVinCheck()" /><div id="vinWarn" class="vin-warn no-print" role="alert" style="display:none"></div></div>
         <div class="field"><label data-i18n="lblUsage">Usage</label><input type="text" id="usage" data-i18n-ph="phUsage" placeholder="Private / Commercial" /></div>
       </div>
       <div class="grid corp-only">
@@ -4040,9 +4063,10 @@ var qrcode = function() {
           <div class="box">
             <label data-i18n="lblRate">Rate</label>
             <div class="value-row">
-              <input type="number" id="rate" class="ltr-field" placeholder="0.00" step="0.01" oninput="calc()" />
+              <input type="number" id="rate" class="ltr-field" placeholder="0.00" step="0.01" oninput="calc(); updateRateHint()" />
               <span class="suffix">%</span>
             </div>
+            <div id="rateHint" class="rate-hint no-print" style="display:none"></div>
           </div>
           <div class="box">
             <label data-i18n="lblBasePremium">Base Premium</label>
@@ -4245,6 +4269,8 @@ var qrcode = function() {
 
   <div class="actions">
     <a class="policy-link no-print" href="policy-wording.pdf" target="_blank" rel="noopener" data-i18n="btnPolicyWording">Policy Wording (EN / AR)</a>
+    <button type="button" class="btn-send btn-wa no-print" onclick="sendToClient('whatsapp')">Send by WhatsApp</button>
+    <button type="button" class="btn-send btn-mail no-print" onclick="sendToClient('email')">Send by email</button>
     <button class="btn-print" onclick="handlePrint()" data-i18n="btnPrint">Print / Save as PDF</button>
   </div>
   <div id="premiumDock" class="no-print" aria-live="polite">
@@ -4957,15 +4983,23 @@ async function loadQuoteList(){
     const typeLabel = q.quote_type === 'individual' ? 'Individual' : 'Corporate';
     const preparedBy = q.created_by_email || '—';
     const langTag = d.language === 'ar' ? ' (AR)' : '';
+    const stage = QUOTE_STAGES[q.stage] ? q.stage : 'open';
+    const isMine = (q.created_by_email || '').toLowerCase() === (currentUserEmail || '').toLowerCase();
+    const canStage = isMine || currentUserIsAdmin;
+    const stageCell = canStage
+      ? `<select class="stage-select stage-${stage}" onchange="changeStage('${q.id}', this)" aria-label="Stage">${Object.keys(QUOTE_STAGES).map(k => `<option value="${k}"${k === stage ? ' selected' : ''}>${QUOTE_STAGES[k]}</option>`).join('')}</select>`
+      : `<span class="stage-chip stage-${stage}">${QUOTE_STAGES[stage]}</span>`;
     rows += `
-      <tr>
+      <tr data-type="${q.quote_type}" data-stage="${stage}" data-mine="${isMine ? '1' : '0'}">
         <td class="qno" data-label="Quotation No.">${q.quote_no || '—'}${langTag}</td>
         <td data-label="Type"><span class="type-tag ${q.quote_type}">${typeLabel}</span></td>
         <td data-label="Client">${escapeHtml(clientOrCompany)}</td>
         <td data-label="Prepared By">${escapeHtml(preparedBy)}</td>
+        <td data-label="Stage">${stageCell}</td>
         <td data-label="Date">${dateStr}</td>
         <td class="row-actions" data-label="">
           <button class="edit-btn" onclick="editQuotation('${q.id}')">Edit</button>
+          <button class="edit-btn" onclick="duplicateQuotation('${q.id}')" title="Start a new quotation from this one">Duplicate</button>
           ${currentUserIsAdmin ? `<button class="delete-btn" onclick="deleteQuotation('${q.id}')">Delete</button>` : ''}
         </td>
       </tr>`;
@@ -4974,7 +5008,7 @@ async function loadQuoteList(){
   wrap.innerHTML = `
     <table class="quote-table">
       <thead>
-        <tr><th>Quotation No.</th><th>Type</th><th>Client</th><th>Prepared By</th><th>Date</th><th></th></tr>
+        <tr><th>Quotation No.</th><th>Type</th><th>Client</th><th>Prepared By</th><th>Stage</th><th>Date</th><th></th></tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>`;
@@ -4991,6 +5025,7 @@ function escapeHtml(str){
 async function startNewQuotation(type){
   selectedQuoteType = type;
   currentQuotationId = null;
+  currentStage = 'open';
   applyLanguage(dashboardLanguage);
   resetForm();
 
@@ -5035,6 +5070,7 @@ async function editQuotation(id){
   }
 
   currentQuotationId = data.id;
+  currentStage = data.stage || 'open';
   selectedQuoteType = data.quote_type;
   applyLanguage((data.data && data.data.language) || 'en');
   resetForm();
@@ -5073,6 +5109,8 @@ function openQuotationForm(type){
 
   calc();
   renderQrCode();
+  if (typeof updateRateHint === 'function') updateRateHint();
+  if (typeof showVinClash === 'function') showVinClash(null);
 }
 
 // ---------- QR code: links to the read-only public view of this
@@ -5429,6 +5467,7 @@ function getMissingRequiredFields(){
     { id: 'clientName', label: dict.lblClientName },
     { id: 'vehicleMake', label: dict.lblMake },
     { id: 'vehicleModel', label: dict.lblModel },
+    { id: 'chassisNo', label: dict.lblChassis },
     { id: 'sumInsured', label: dict.lblSumInsured }
   ];
   const missing = [];
@@ -5474,6 +5513,15 @@ async function handlePrint(){
     return;
   }
 
+  if (selectedQuoteType === 'individual'){
+    const clash = await findVinClash();
+    if (clash){
+      showVinClash(clash);
+      alert('This vehicle already has quotation ' + clash.quote_no + ' prepared by ' + clash.prepared_by + '.\n\nA second quotation cannot be created until that one is marked Lost or Expired.');
+      return;
+    }
+  }
+
   const btn = document.querySelector('.btn-print');
   const originalLabel = btn.textContent;
   btn.disabled = true;
@@ -5502,7 +5550,13 @@ async function handlePrint(){
     }
   } catch(err){
     console.error('Could not save/finalize quotation:', err);
-    alert('Could not save this quotation — check your internet connection and try again.');
+    const m = String((err && err.message) || '').match(/VIN_DUPLICATE\|([^|]*)\|(.*)$/);
+    if (m){
+      showVinClash({ quote_no: m[1], prepared_by: m[2] });
+      alert('This vehicle already has quotation ' + m[1] + ' prepared by ' + m[2] + '.\n\nA second quotation cannot be created until that one is marked Lost or Expired.');
+    } else {
+      alert('Could not save this quotation — check your internet connection and try again.');
+    }
     btn.disabled = false;
     btn.textContent = originalLabel;
     return;
@@ -5640,17 +5694,196 @@ function updateDock(){
 }
 function filterQuotes(){
   const q = (document.getElementById('quoteSearch').value || '').trim().toLowerCase();
+  const fType = document.getElementById('fType') ? document.getElementById('fType').value : '';
+  const fStage = document.getElementById('fStage') ? document.getElementById('fStage').value : '';
+  const fMine = document.getElementById('fMine') ? document.getElementById('fMine').checked : false;
   const rows = document.querySelectorAll('#quoteListWrap .quote-table tbody tr');
   let shown = 0;
   rows.forEach(tr => {
-    const hit = !q || tr.textContent.toLowerCase().includes(q);
+    const hit = (!q || tr.textContent.toLowerCase().includes(q))
+      && (!fType || tr.dataset.type === fType)
+      && (!fStage || tr.dataset.stage === fStage)
+      && (!fMine || tr.dataset.mine === '1');
     tr.style.display = hit ? '' : 'none';
     if (hit) shown++;
   });
   const c = document.getElementById('quoteCount');
-  if (c) c.textContent = rows.length ? (q ? shown + ' of ' + rows.length : rows.length + ' quotation' + (rows.length === 1 ? '' : 's')) : '';
+  const filtered = q || fType || fStage || fMine;
+  if (c) c.textContent = rows.length ? (filtered ? shown + ' of ' + rows.length : rows.length + ' quotation' + (rows.length === 1 ? '' : 's')) : '';
 }
 document.addEventListener('input', e => { if (e.target && (e.target.id === 'totalPremium')) updateDock(); });
+
+// ---------- Stages, VIN check, duplicate, rate guidance, send ----------
+const QUOTE_STAGES = { open: 'Open', sent: 'Sent', accepted: 'Accepted', expired: 'Expired', lost: 'Lost' };
+let currentStage = 'open';
+
+async function changeStage(id, sel){
+  const prev = sel.className;
+  const { error } = await supabaseClient.rpc('set_quotation_stage', { p_id: String(id), p_stage: sel.value });
+  if (error){
+    console.error(error);
+    alert('Could not change the stage. You can only change quotations you prepared.');
+    loadQuoteList();
+    return;
+  }
+  sel.className = 'stage-select stage-' + sel.value;
+  const tr = sel.closest('tr'); if (tr) tr.dataset.stage = sel.value;
+  filterQuotes();
+}
+
+// --- VIN duplicate check ---
+let vinTimer = null;
+function scheduleVinCheck(){
+  clearTimeout(vinTimer);
+  vinTimer = setTimeout(runVinCheck, 600);
+}
+function normalizeVin(v){ return String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+async function findVinClash(){
+  if (selectedQuoteType !== 'individual') return null;
+  const vin = normalizeVin(val('chassisNo'));
+  if (vin.length < 5) return null;
+  try{
+    const { data, error } = await supabaseClient.rpc('check_vin', { p_vin: vin, p_id: currentQuotationId ? String(currentQuotationId) : null });
+    if (error){ console.error('VIN check failed:', error); return null; }
+    return (data && data.length) ? data[0] : null;
+  } catch(e){ console.error(e); return null; }
+}
+function showVinClash(clash){
+  const w = document.getElementById('vinWarn');
+  if (!w) return;
+  if (!clash){ w.style.display = 'none'; w.textContent = ''; return; }
+  w.textContent = 'This vehicle already has quotation ' + clash.quote_no + ' prepared by ' + clash.prepared_by + '. It can’t be quoted again until that quotation is marked Lost or Expired.';
+  w.style.display = 'block';
+}
+async function runVinCheck(){
+  showVinClash(await findVinClash());
+}
+
+// --- Duplicate a quotation as a starting point ---
+async function duplicateQuotation(id){
+  const { data: src, error } = await supabaseClient.from('quotations').select('*').eq('id', id).single();
+  if (error || !src){ alert('Could not load that quotation.'); console.error(error); return; }
+  const d = JSON.parse(JSON.stringify(src.data || {}));
+  const mine = (src.created_by_email || '').toLowerCase() === (currentUserEmail || '').toLowerCase();
+  delete d.signature;
+  d.dateIssued = formatDisplayDate(new Date());
+  d.preparedBy = currentUserEmail;
+  if (!mine){ d.chassisNo = ''; d.plateNumber = ''; }   // someone else's vehicle: keep it as a template only
+  const { data: row, error: insErr } = await supabaseClient.from('quotations')
+    .insert({ quote_type: src.quote_type, status: 'draft', data: d, created_by_email: currentUserEmail })
+    .select().single();
+  if (insErr){ alert('Could not create the copy — check your connection and try again.'); console.error(insErr); return; }
+  currentQuotationId = row.id;
+  currentStage = 'open';
+  selectedQuoteType = src.quote_type;
+  applyLanguage(d.language || 'en');
+  resetForm();
+  populateFormData(d);
+  document.getElementById('quoteNo').value = '';
+  openQuotationForm(src.quote_type);
+  calc();
+}
+
+// --- Rate guidance (uploaded by managers in the Manager Dashboard) ---
+let rateGuidance = null, rateGuidanceLoading = null;
+async function loadRateGuidance(){
+  if (rateGuidance) return rateGuidance;
+  if (!rateGuidanceLoading){
+    rateGuidanceLoading = supabaseClient.from('rate_guidance').select('*').then(({ data, error }) => {
+      rateGuidance = error ? [] : (data || []);
+      return rateGuidance;
+    }).catch(() => (rateGuidance = []));
+  }
+  return rateGuidanceLoading;
+}
+function findGuidedRate(){
+  if (!rateGuidance || !rateGuidance.length) return null;
+  const make = val('vehicleMake').trim().toLowerCase();
+  const model = val('vehicleModel').trim().toLowerCase();
+  const year = parseInt(val('vehicleYear'), 10);
+  if (!make) return null;
+  let best = null, bestScore = -1;
+  rateGuidance.forEach(r => {
+    if ((r.make || '').trim().toLowerCase() !== make) return;
+    let score = 0;
+    const rm = (r.model || '').trim().toLowerCase();
+    if (rm){ if (model && (model === rm || model.includes(rm))) score += 2; else return; }
+    if (r.year_from != null || r.year_to != null){
+      if (isNaN(year)) return;
+      if (r.year_from != null && year < r.year_from) return;
+      if (r.year_to != null && year > r.year_to) return;
+      score += 1;
+    }
+    if (score > bestScore){ best = r; bestScore = score; }
+  });
+  return best;
+}
+async function updateRateHint(){
+  const el = document.getElementById('rateHint');
+  if (!el) return;
+  if (selectedQuoteType !== 'individual'){ el.style.display = 'none'; return; }
+  await loadRateGuidance();
+  const r = findGuidedRate();
+  const cur = parseFloat(val('rate'));
+  if (!r){ el.style.display = 'none'; return; }
+  const label = [r.make, r.model].filter(Boolean).join(' ');
+  el.innerHTML = '';
+  const t = document.createElement('span');
+  t.textContent = 'Suggested rate ' + Number(r.rate) + '% for ' + label + (r.note ? ' (' + r.note + ')' : '');
+  el.appendChild(t);
+  if (cur !== Number(r.rate)){
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = 'Use this rate';
+    b.onclick = () => { document.getElementById('rate').value = Number(r.rate); calc(); updateRateHint(); };
+    el.appendChild(b);
+  }
+  el.style.display = 'flex';
+}
+['vehicleMake','vehicleModel','vehicleYear'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el){ el.addEventListener('change', updateRateHint); el.addEventListener('input', () => { clearTimeout(window.__rh); window.__rh = setTimeout(updateRateHint, 400); }); }
+});
+
+// --- Send to client (opens WhatsApp / the email app with a ready message) ---
+function clientLink(){ return getSiteBaseUrl() + 'view.html?id=' + currentQuotationId; }
+function buildClientMessage(){
+  const ar = selectedLanguage === 'ar';
+  const no = document.getElementById('quoteNo').value;
+  const name = val('clientName').trim();
+  const total = val('totalPremium');
+  const who = val('underwriter').trim() || val('preparedBy').trim();
+  if (ar){
+    return {
+      subject: 'عرض سعر تأمين المركبات ' + no + ' - مجموعة الخليج للتأمين',
+      body: 'عزيزي/عزيزتي ' + name + '،\n\nنرفق لكم عرض سعر تأمين المركبات رقم ' + no + ' من مجموعة الخليج للتأمين - الكويت:\n' + clientLink() + '\n\nإجمالي القسط: ' + total + ' د.ك\n\nمع أطيب التحيات،\n' + who
+    };
+  }
+  return {
+    subject: 'Motor insurance quotation ' + no + ' - Gulf Insurance Group Kuwait',
+    body: 'Dear ' + name + ',\n\nPlease find your motor insurance quotation ' + no + ' from Gulf Insurance Group - Kuwait:\n' + clientLink() + '\n\nTotal premium: KWD ' + total + '\n\nKind regards,\n' + who
+  };
+}
+async function sendToClient(channel){
+  if (!currentQuotationId || !document.getElementById('quoteNo').value){
+    alert('Save the quotation as a PDF first, so it gets its quotation number. Then you can send it.');
+    return;
+  }
+  const m = buildClientMessage();
+  if (channel === 'whatsapp'){
+    let num = digitsOnly(val('mobile'));
+    if (num.startsWith('00')) num = num.slice(2);
+    if (num.length === 8) num = '965' + num;
+    window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(m.body), '_blank', 'noopener');
+  } else {
+    const to = val('clientEmail').trim();
+    window.location.href = 'mailto:' + encodeURIComponent(to).replace('%40','@') + '?subject=' + encodeURIComponent(m.subject) + '&body=' + encodeURIComponent(m.body);
+  }
+  if (currentStage === 'open'){
+    const { error } = await supabaseClient.rpc('set_quotation_stage', { p_id: String(currentQuotationId), p_stage: 'sent' });
+    if (!error) currentStage = 'sent';
+  }
+}
+
 
 // ---------- Fleet Excel/CSV upload (Corporate premium calculation) ----------
 
