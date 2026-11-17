@@ -5880,9 +5880,15 @@ function buildClientMessage(){
   const total = val('totalPremium');
   const who = val('underwriter').trim() || val('preparedBy').trim();
   if (ar){
+    // Isolate the numbers/links so Arabic right-to-left text can't reorder them
+    const iso = t => '\u2066' + t + '\u2069';
     return {
-      subject: 'عرض سعر تأمين المركبات ' + no + ' - مجموعة الخليج للتأمين',
-      body: 'عزيزي/عزيزتي ' + name + '،\n\nنرفق لكم عرض سعر تأمين المركبات رقم ' + no + ' من مجموعة الخليج للتأمين - الكويت:\n' + clientLink() + '\n\nإجمالي القسط: ' + total + ' د.ك\n\nمع أطيب التحيات،\n' + who
+      subject: 'عرض سعر تأمين المركبات ' + iso(no) + ' - مجموعة الخليج للتأمين',
+      body: '\u200F' + 'عزيزي/عزيزتي ' + name + '،\n\n' +
+            '\u200F' + 'نرفق لكم عرض سعر تأمين المركبات رقم ' + iso(no) + ' من مجموعة الخليج للتأمين - الكويت.\n' +
+            '\u200F' + 'يمكنكم الاطلاع على العرض من الرابط التالي:\n' + iso(clientLink()) + '\n\n' +
+            '\u200F' + 'إجمالي القسط: ' + iso(total) + ' د.ك\n\n' +
+            '\u200F' + 'مع أطيب التحيات،\n' + '\u200F' + who
     };
   }
   return {
