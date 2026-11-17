@@ -6,7 +6,15 @@
 <title>GIG Motor Insurance Quotation</title>
 <script src="supabase-js-2.118.0.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&family=Cairo:wght@500;600;700;800&display=swap');
+    @font-face{font-family:'Plex';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/plex-latin-400.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/plex-arabic-400.woff2') format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/plex-latin-500.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/plex-arabic-500.woff2') format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/plex-latin-600.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/plex-arabic-600.woff2') format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/plex-latin-700.woff2') format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+  @font-face{font-family:'Plex';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/plex-arabic-700.woff2') format('woff2');unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FDFF,U+FE70-FE74,U+FE76-FEFC;}
+
 
   :root{
     --navy: #0b1339;
@@ -24,7 +32,7 @@
   body{
     margin:0;
     background: #e8e6df;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plex', sans-serif;
     color: var(--ink);
     padding: 32px 16px;
   }
@@ -41,12 +49,12 @@
   .sheet[dir="rtl"]{
     direction: rtl;
     text-align: right;
-    font-family: 'Cairo', 'Inter', sans-serif;
+    font-family: 'Plex', sans-serif;
   }
   .sheet[dir="rtl"] h1,
   .sheet[dir="rtl"] .section-title,
   .sheet[dir="rtl"] .box label,
-  .sheet[dir="rtl"] label{ font-family: 'Cairo', sans-serif; }
+  .sheet[dir="rtl"] label{ font-family: 'Plex', sans-serif; }
   .sheet[dir="rtl"] .header{ flex-direction: row-reverse; }
   .sheet[dir="rtl"] .meta div{ border-right: none; border-left: 1px solid var(--line); }
   .sheet[dir="rtl"] .meta div:last-child{ border-left: none; }
@@ -75,7 +83,7 @@
   .header img{ height: 66px; }
   .header .title-block{ text-align:right; color:#fff; }
   .header .title-block h1{
-    font-family:'Playfair Display', serif;
+    font-family:'Plex', sans-serif;
     font-size: 22px;
     margin:0 0 4px;
     letter-spacing: 0.3px;
@@ -109,7 +117,7 @@
   .body-pad{ padding: 34px 44px 44px; }
 
   .section-title{
-    font-family:'Playfair Display', serif;
+    font-family:'Plex', sans-serif;
     font-size: 15px;
     color: var(--navy);
     margin: 26px 0 14px;
@@ -223,14 +231,14 @@
   .actions{ max-width: 900px; margin: 16px auto 0; display:flex; justify-content:flex-end; gap: 10px; }
   .actions button{
     border:none; padding: 10px 20px; border-radius: 5px; font-size: 13px;
-    font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;
+    font-weight:600; cursor:pointer; font-family:'Plex', sans-serif;
     background: var(--navy); color:#fff;
   }
   .actions button:hover{ background: var(--navy-2); }
   .actions .policy-link{
     display:inline-flex; align-items:center;
     border: 1.5px solid var(--navy); padding: 9px 20px; border-radius: 5px;
-    font-size: 13px; font-weight:600; font-family:'Inter',sans-serif;
+    font-size: 13px; font-weight:600; font-family:'Plex', sans-serif;
     background: #fff; color: var(--navy); text-decoration:none; cursor:pointer;
   }
   .actions .policy-link:hover{ background: var(--cream); }
@@ -244,9 +252,9 @@
     page-break-before: always;
     break-before: page;
     padding-top: 6px;
-    font-family: 'Cairo', 'Inter', sans-serif;
+    font-family: 'Plex', sans-serif;
   }
-  .ref-page .section-title{ font-family: 'Cairo', sans-serif; }
+  .ref-page .section-title{ font-family: 'Plex', sans-serif; }
   .ref-subnote{ font-size: 12px; color: var(--muted); margin: -6px 0 14px; font-weight:600; }
   .ref-exclusions{
     margin: 0 0 30px; padding-inline-start: 20px; font-size: 13px; line-height: 2; color: var(--ink);
@@ -290,6 +298,24 @@
     .header{ flex-direction:column; align-items:flex-start; gap:14px; }
     .header .title-block{ text-align:left; }
   }
+
+  /* ===== Design layer v2 (matches the quotation tool) ===== */
+  :root{ --cream:#f4f6fa; --line:#dde1ea; --page:#eceff5; --gold-soft:#f6eddf; --navy-soft:#e8ebf5; --ring:0 0 0 3px rgba(185,138,78,.22); }
+  body{ background: var(--page); -webkit-font-smoothing: antialiased; font-feature-settings:"tnum" 1; }
+  :focus-visible{ outline:2px solid var(--gold); outline-offset:2px; }
+
+  .field label, .meta label, .signature-wrap label, .at-group-title, .at-label{ text-transform:none !important; letter-spacing:0 !important; }
+  .field label, .meta label{ font-size:12px; font-weight:500; margin-bottom:5px; }
+  .sheet{ border-radius:10px; box-shadow:0 1px 2px rgba(11,19,57,.06), 0 12px 32px rgba(11,19,57,.10); }
+  .header .title-block h1{ font-size:22px; font-weight:600; letter-spacing:0; }
+  .header .title-block .sub{ text-transform:none; letter-spacing:.2px; font-size:12.5px; }
+  .meta .val{ font-size:14px; }
+  .section-title{ font-size:15.5px; font-weight:600; gap:12px; }
+  .section-title::before{ content:""; width:4px; height:17px; background:var(--gold); border-radius:2px; flex-shrink:0; }
+  .at-group-title{ font-size:13px; font-weight:600; padding:10px 14px; border-radius:8px 8px 0 0; }
+  .at-label{ font-size:12.5px; }
+  .at-table td{ font-size:13px; }
+  @media print{ body{ padding:0; background:#fff; } .section-title::before{ -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
 </style>
 </head>
 <body>
